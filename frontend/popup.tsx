@@ -65,31 +65,29 @@ const YouTubeVideoAssistant = () => {
     
     try {
       // Call your backend API
-      const response = await fetch('https://your-backend-api.com/process-video', {
+      const response = await fetch('http://127.0.0.1:8000/complete-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ youtube_url: url })
+        body: JSON.stringify({ url: url }) // Changed from youtube_url to url to match backend expectations
       });
       
       if (!response.ok) {
-        throw new Error('Failed to process video');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Server returned ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
       
-      // Check if we need to poll for results
-      if (data.status === 'processing') {
-        pollForResults(data.request_id);
-      } else {
-        // Results available immediately
-        updateResults(data.result);
-      }
+      // Results available immediately since we're not using polling
+      updateResults(data);
+      setIsProcessing(false);
     } catch (err) {
+      console.error('API Error:', err);
       setError('Error processing video: ' + err.message);
       setIsProcessing(false);
     }
   };
-  
+
   // Poll for results if processing asynchronously
   const pollForResults = async (requestId) => {
     const checkResults = async () => {
@@ -203,7 +201,7 @@ const YouTubeVideoAssistant = () => {
   return (
     <div className="yt-assistant-container">
       <header className="extension-header">
-        <h1>YouTube Video Assistant</h1>
+        <h1>SmartEd</h1>
       </header>
       
       {/* Video Info Section */}
