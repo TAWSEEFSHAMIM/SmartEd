@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from transcript import get_transcript
-from summarization import summarize_transcript, generate_quiz
+from ai import summarize_transcript, generate_quiz
 from pydantic import BaseModel
 
 app = FastAPI()
