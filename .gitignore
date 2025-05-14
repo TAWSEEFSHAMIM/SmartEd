@@ -2,6 +2,7 @@
 .env
 
 # Virtual environment
+/backend/venv
 /venv
 
 # VS Code files

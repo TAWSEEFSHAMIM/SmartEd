@@ -1,5 +1,7 @@
-# test_transcript.py
+
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig, GenericProxyConfig
+from youtube_transcript_api.formatters import TextFormatter
 import re
 
 def extract_video_id(youtube_url):
@@ -15,22 +17,38 @@ def extract_video_id(youtube_url):
             return match.group(1)
     return None
 
-def get_transcript(video_url):
+
+ytt_api = YouTubeTranscriptApi(
+    proxy_config=GenericProxyConfig(
+        http_url="http://hynwgqgq:y4e16wyl9gwm@154.36.110.199:6853",
+        # https_url="https://hynwgqgq:y4e16wyl9gwm@154.36.110.199:6853",
+    )
+)
+
+formatter = TextFormatter()
+
+def get_transcript(video_url):  
     video_id = extract_video_id(video_url)
+    print(f"Extracted video ID: {video_id}")    
     if not video_id:
         return "Invalid YouTube URL"
     
     try:
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-        return " ".join([t["text"] for t in transcript_list])
+        transcript_list = ytt_api.fetch(video_id)
+        transcript = formatter.format_transcript(transcript_list)
+
+        return transcript
     except Exception as e:
         return f"Error: {str(e)}"
 
 if __name__ == "__main__":
-    # Test with a YouTube video known to have captions
-    test_input = input("Press Enter to run the test...\n\n")
-    test_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"  # Rick Astley video
-    transcript = get_transcript(test_input)
+    test_input = input("Enter YouTube video URL: ")
+    # Define your proxy settings here
+    proxy = {
+        "http": "http://username:password@proxy.example.com:port",
+        "https": "https://username:password@proxy.example.com:port"
+    }
+    transcript = get_transcript(test_input, proxies=proxy)
     
     print(f"Video ID: {extract_video_id(test_input)}")
     print(f"Transcript length: {len(transcript)} characters")
