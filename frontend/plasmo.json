@@ -1,0 +1,19 @@
+{
+  "name": "SmartEd",
+  "description": "YouTube video summary and quiz generator",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "SmartEd"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.tsx"]
+    }
+  ],
+  "permissions": ["tabs"],
+  "host_permissions": [
+    "*://*.youtube.com/*"
+  ]
+}

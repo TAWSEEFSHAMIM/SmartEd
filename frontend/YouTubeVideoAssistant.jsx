@@ -1,10 +1,8 @@
-// YouTube Video Assistant Extension UI
-// Built with Plasma HQ and React
-
+// YouTubeVideoAssistant.jsx - Modified for content script integration
 import React, { useState, useEffect } from 'react';
 import './style.css';
 
-// Main Extension Component
+// Main Component - Modified for inline YouTube page integration
 const YouTubeVideoAssistant = () => {
   // State management
   const [url, setUrl] = useState('');
@@ -19,44 +17,63 @@ const YouTubeVideoAssistant = () => {
   });
   const [error, setError] = useState('');
 
-  // Get current YouTube URL when extension opens
+  // Get current YouTube URL when component mounts
   useEffect(() => {
-    // Chrome extension API to get current tab URL
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.url?.includes('youtube.com/watch')) {
-        setUrl(tabs[0].url);
-        extractVideoId(tabs[0].url);
+    const currentUrl = window.location.href;
+    if (currentUrl.includes('youtube.com/watch')) {
+      setUrl(currentUrl);
+      extractVideoId(currentUrl);
+    }
+    
+    // Listen for URL changes within the component
+    const handleLocationChange = () => {
+      const newUrl = window.location.href;
+      if (newUrl.includes('youtube.com/watch')) {
+        setUrl(newUrl);
+        extractVideoId(newUrl);
+      }
+    };
+    
+    // Set up a MutationObserver to detect YouTube's navigation
+    const observer = new MutationObserver((mutations) => {
+      if (window.location.href !== url && window.location.href.includes('youtube.com/watch')) {
+        handleLocationChange();
       }
     });
+    
+    observer.observe(document.querySelector('title'), { subtree: true, characterData: true, childList: true });
+    
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // Extract video ID and fetch video details
   const extractVideoId = (url) => {
-    const urlParams = new URLSearchParams(new URL(url).search);
-    const videoId = urlParams.get('v');
-    
-    if (videoId) {
-      setResults(prev => ({
-        ...prev,
-        videoId,
-        thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`
-      }));
+    try {
+      const urlParams = new URLSearchParams(new URL(url).search);
+      const videoId = urlParams.get('v');
       
-      // Get video title via YouTube Data API or from page title
-      chrome.tabs.executeScript(
-        { code: 'document.title' },
-        (results) => {
-          const title = results[0].replace(' - YouTube', '');
-          setResults(prev => ({ ...prev, videoTitle: title }));
-        }
-      );
+      if (videoId) {
+        // Get video title from the page
+        const title = document.title.replace(' - YouTube', '');
+        
+        setResults(prev => ({
+          ...prev,
+          videoId,
+          videoTitle: title,
+          thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`
+        }));
+      }
+    } catch (err) {
+      console.error('Error extracting video ID:', err);
     }
   };
 
   // Process the video when user clicks the button
   const processVideo = async () => {
     if (!url.includes('youtube.com/watch')) {
-      setError('Please enter a valid YouTube video URL');
+      setError('Please navigate to a valid YouTube video');
       return;
     }
     
@@ -68,7 +85,7 @@ const YouTubeVideoAssistant = () => {
       const response = await fetch('http://127.0.0.1:8000/complete-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url }) // Changed from youtube_url to url to match backend expectations
+        body: JSON.stringify({ url: url })
       });
       
       if (!response.ok) {
@@ -86,38 +103,6 @@ const YouTubeVideoAssistant = () => {
       setError('Error processing video: ' + err.message);
       setIsProcessing(false);
     }
-  };
-
-  // Poll for results if processing asynchronously
-  const pollForResults = async (requestId) => {
-    const checkResults = async () => {
-      try {
-        const response = await fetch(`https://your-backend-api.com/result/${requestId}`);
-        const data = await response.json();
-        
-        if (data.status === 'completed') {
-          updateResults(data.result);
-          setIsProcessing(false);
-          return true;
-        } else if (data.status === 'failed') {
-          setError('Processing failed: ' + data.error);
-          setIsProcessing(false);
-          return true;
-        }
-        // Still processing
-        return false;
-      } catch (err) {
-        setError('Error checking results: ' + err.message);
-        setIsProcessing(false);
-        return true;
-      }
-    };
-    
-    // Poll every 3 seconds until complete
-    const pollInterval = setInterval(async () => {
-      const isDone = await checkResults();
-      if (isDone) clearInterval(pollInterval);
-    }, 3000);
   };
   
   // Update results in state
@@ -204,32 +189,14 @@ const YouTubeVideoAssistant = () => {
         <h1>SmartEd</h1>
       </header>
       
-      {/* Video Info Section */}
-      {results.thumbnailUrl && (
-        <div className="video-info">
-          <img src={results.thumbnailUrl} alt="Video thumbnail" className="video-thumbnail" />
-          <div className="video-details">
-            <h3>{results.videoTitle || 'YouTube Video'}</h3>
-          </div>
-        </div>
-      )}
-      
-      {/* URL Input */}
-      <div className="url-input-container">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="YouTube URL"
-          className="url-input"
-          disabled={isProcessing}
-        />
+      {/* Process Button */}
+      <div className="process-button-container">
         <button 
           onClick={processVideo} 
           disabled={isProcessing || !url}
-          className="process-button"
+          className="process-button full-width"
         >
-          {isProcessing ? 'Processing...' : 'Process Video'}
+          {isProcessing ? 'Processing Video...' : 'Analyze This Video'}
         </button>
       </div>
       
