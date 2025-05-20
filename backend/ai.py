@@ -5,8 +5,10 @@ from transcript import get_transcript
 
 load_dotenv
 api_key = os.getenv("GEMINI_API_KEY")
+
 SUMMARY_MODEL = "gemini-2.0-flash"
 QUIZ_MODEL = "gemini-2.0-flash"
+
 client = OpenAI(
     api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
 )
