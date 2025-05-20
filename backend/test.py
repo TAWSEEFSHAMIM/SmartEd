@@ -1,87 +1,131 @@
-"""
-Test script for verifying SmartEd API functionality.
-Run this script to test the API endpoints without a frontend.
-"""
-
-import requests
 import json
-from dotenv import load_dotenv
-import os
+import http.client
+import urllib.parse
+import time
 
-load_dotenv()  # Load environment variables
+# Configuration
+HOST = "localhost"
+PORT = 8000  # Default FastAPI port
+TEST_VIDEO_URL = "https://www.youtube.com/watch?v=wjZofJX0v4M"  # Replace with a valid test video
 
-# API URL - Change this if your FastAPI server is running on a different port
-API_URL = "http://localhost:8000"
-
-# A sample educational YouTube video URL
-SAMPLE_VIDEO_URL = "https://www.youtube.com/watch?v=kVeOpcw4GWY&list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d&index=2"  # 3Blue1Brown Linear Algebra video
-
-
-def test_endpoints():
-    """Test all API endpoints with a sample video URL"""
-    print("======== SmartEd API Test ========")
+def make_request(method, endpoint, data=None):
+    """Make HTTP request to the API endpoint"""
+    conn = http.client.HTTPConnection(HOST, PORT)
+    headers = {"Content-Type": "application/json"}
     
-    # Test root endpoint
+    if data:
+        body = json.dumps(data)
+    else:
+        body = None
+    
+    conn.request(method, endpoint, body=body, headers=headers)
+    response = conn.getresponse()
+    
+    response_data = response.read().decode()
+    conn.close()
+    
+    if response_data:
+        try:
+            return response.status, json.loads(response_data)
+        except json.JSONDecodeError:
+            return response.status, response_data
+    else:
+        return response.status, None
+
+def test_root_endpoint():
+    """Test the root endpoint"""
+    print("\n===== Testing Root Endpoint =====")
+    status, data = make_request("GET", "/")
+    
+    if status == 200 and data.get("status") == "online":
+        print("✅ Root endpoint test passed")
+        print(f"Response: {data}")
+    else:
+        print("❌ Root endpoint test failed")
+        print(f"Status: {status}, Response: {data}")
+
+def test_transcript_endpoint():
+    """Test the transcript endpoint"""
+    print("\n===== Testing Transcript Endpoint =====")
+    data = {"url": TEST_VIDEO_URL}
+    status, response = make_request("POST", "/transcript", data)
+    
+    if status == 200 and "transcript" in response:
+        print("✅ Transcript endpoint test passed")
+        print(f"Transcript length: {len(response['transcript'])} characters")
+        print(f"Transcript preview: {response['transcript'][:100]}...")
+    else:
+        print("❌ Transcript endpoint test failed")
+        print(f"Status: {status}, Response: {response}")
+
+def test_summarize_endpoint():
+    """Test the summarize endpoint"""
+    print("\n===== Testing Summarize Endpoint =====")
+    data = {"url": TEST_VIDEO_URL, "max_length": 400}
+    status, response = make_request("POST", "/summarize", data)
+    
+    if status == 200 and "summary" in response:
+        print("✅ Summarize endpoint test passed")
+        print(f"Summary length: {len(response['summary'])} characters")
+        print(f"Summary preview: {response['summary'][:100]}...")
+    else:
+        print("❌ Summarize endpoint test failed")
+        print(f"Status: {status}, Response: {response}")
+
+def test_quiz_endpoint():
+    """Test the quiz endpoint"""
+    print("\n===== Testing Quiz Endpoint =====")
+    data = {"url": TEST_VIDEO_URL, "num_questions": 3}
+    status, response = make_request("POST", "/quiz", data)
+    
+    if status == 200 and "quiz" in response:
+        print("✅ Quiz endpoint test passed")
+        print(f"Quiz response: {json.dumps(response['quiz'], indent=2)[:200]}...")
+    else:
+        print("❌ Quiz endpoint test failed")
+        print(f"Status: {status}, Response: {response}")
+
+def test_complete_analysis_endpoint():
+    """Test the complete analysis endpoint"""
+    print("\n===== Testing Complete Analysis Endpoint =====")
+    data = {"url": TEST_VIDEO_URL}
+    status, response = make_request("POST", "/complete-analysis", data)
+    
+    success = status == 200 and all(k in response for k in ["transcript", "summary", "quiz"])
+    
+    if success:
+        print("✅ Complete analysis endpoint test passed")
+        print(f"Response contains: {', '.join(response.keys())}")
+        print(f"Summary preview: {response['summary'][:100]}...")
+    else:
+        print("❌ Complete analysis endpoint test failed")
+        print(f"Status: {status}, Response: {response}")
+
+def run_all_tests():
+    """Run all tests"""
+    print("Starting API tests...")
+    
+    # First test if API is running
     try:
-        response = requests.get(f"{API_URL}/")
-        print(f"Root endpoint: {response.json()}")
+        test_root_endpoint()
     except Exception as e:
-        print(f"Error connecting to the API. Is the server running? Error: {e}")
+        print(f"❌ Error connecting to API: {e}")
+        print("Make sure your FastAPI server is running on http://localhost:8000")
         return
-        
-    # Test transcript endpoint
-    print("\n--- Testing transcript endpoint ---")
-    try:
-        response = requests.post(
-            f"{API_URL}/transcript", 
-            json={"url": SAMPLE_VIDEO_URL}
-        )
-        
-        if response.status_code == 200:
-            transcript = response.json().get("transcript", "")
-            print(f"Transcript length: {len(transcript)} characters")
-            print(f"Transcript preview: {transcript[:200]}...")
-        else:
-            print(f"Error: {response.status_code} - {response.text}")
-    except Exception as e:
-        print(f"Error: {str(e)}")
-
-    # Test summary endpoint
-    print("\n--- Testing summarization endpoint ---")
-    try:
-        response = requests.post(
-            f"{API_URL}/summarize", 
-            json={"url": SAMPLE_VIDEO_URL, "max_length": 400}
-        )
-        
-        if response.status_code == 200:
-            summary = response.json().get("summary", "")
-            print(f"Summary length: {len(summary)} characters")
-            print(f"Summary preview: {summary[:200]}...")
-        else:
-            print(f"Error: {response.status_code} - {response.text}")
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        
-    # Test quiz endpoint
-    print("\n--- Testing quiz endpoint ---")
-    try:
-        response = requests.post(
-            f"{API_URL}/quiz", 
-            json={"url": SAMPLE_VIDEO_URL, "num_questions": 3}
-        )
-        
-        if response.status_code == 200:
-            quiz = response.json().get("quiz", {})
-            print("Quiz generated:")
-            print(json.dumps(quiz, indent=2)[:500] + "...")  # Print first 500 chars
-        else:
-            print(f"Error: {response.status_code} - {response.text}")
-    except Exception as e:
-        print(f"Error: {str(e)}")
-
-    print("\n======== Test Complete ========")
-
+    
+    # Run all other tests
+    test_transcript_endpoint()
+    time.sleep(1)  # Add small delay between tests to avoid overwhelming the API
+    
+    test_summarize_endpoint()
+    time.sleep(1)
+    
+    test_quiz_endpoint()
+    time.sleep(1)
+    
+    test_complete_analysis_endpoint()
+    
+    print("\n===== All Tests Completed =====")
 
 if __name__ == "__main__":
-    test_endpoints()
+    run_all_tests()
