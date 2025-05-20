@@ -102,12 +102,19 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-height: 300px; /* Set a maximum height */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Tabs */
 .tabs {
   display: flex;
   border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 1;
 }
 
 .tab-button {
@@ -135,6 +142,9 @@
 /* Tab content */
 .tab-content {
   padding: 15px;
+  overflow-y: auto; /* Make this section scrollable */
+  flex-grow: 1;
+  max-height: calc(300px - 43px); /* Account for tab header height */
 }
 
 .summary-container h3,
@@ -150,6 +160,7 @@
   font-size: 14px;
   margin: 0;
   white-space: pre-wrap;
+  
 }
 
 /* Quiz styling */

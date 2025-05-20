@@ -10,13 +10,14 @@ function isYouTubeVideoPage() {
 }
 
 // Create and insert our extension container
+// Function to insert our extension container
 function insertExtensionContainer() {
   // Check if our container already exists
   if (document.getElementById('smart-ed-extension-container')) {
     return;
   }
 
-  // Find the element to insert next to - YouTube's secondary column (sidebar)
+  // Find the secondary column (right sidebar where chapters appear)
   const secondaryColumn = document.querySelector('#secondary');
   
   if (!secondaryColumn) {
@@ -28,8 +29,9 @@ function insertExtensionContainer() {
   const container = document.createElement('div');
   container.id = 'smart-ed-extension-container';
   
-  // Insert our container before the secondary column
-  secondaryColumn.parentNode.insertBefore(container, secondaryColumn);
+  // Insert as the FIRST child of the secondary column
+  // This places it above the chapters section
+  secondaryColumn.insertBefore(container, secondaryColumn.firstChild);
   
   // Render our React component into the container
   const root = createRoot(container);
