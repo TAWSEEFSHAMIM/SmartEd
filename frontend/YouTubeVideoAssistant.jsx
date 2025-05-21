@@ -2,6 +2,28 @@
 import React, { useState, useEffect } from 'react';
 import './style.css';
 
+// Helper functions for localStorage
+const getStoredResults = (videoId) => {
+  try {
+    const stored = localStorage.getItem(`smarted_results_${videoId}`);
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
+    return null;
+  }
+};
+
+const storeResults = (videoId, results) => {
+  try {
+    localStorage.setItem(`smarted_results_${videoId}`, JSON.stringify({
+      ...results,
+      timestamp: new Date().getTime()
+    }));
+  } catch (error) {
+    console.error('Error writing to localStorage:', error);
+  }
+};
+
 // Main Component - Modified for inline YouTube page integration
 const YouTubeVideoAssistant = () => {
   // State management
@@ -48,6 +70,27 @@ const YouTubeVideoAssistant = () => {
     };
   }, []);
 
+  // Cleanup old stored results
+  useEffect(() => {
+    // Cleanup function
+    return () => {
+      // Clear stored results older than 24 hours
+      const yesterday = new Date().getTime() - (24 * 60 * 60 * 1000);
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('smarted_results_')) {
+          try {
+            const stored = JSON.parse(localStorage.getItem(key));
+            if (stored.timestamp && stored.timestamp < yesterday) {
+              localStorage.removeItem(key);
+            }
+          } catch (e) {
+            console.error('Error cleaning up localStorage:', e);
+          }
+        }
+      });
+    };
+  }, []);
+
   // Extract video ID and fetch video details
   const extractVideoId = (url) => {
     try {
@@ -58,12 +101,23 @@ const YouTubeVideoAssistant = () => {
         // Get video title from the page
         const title = document.title.replace(' - YouTube', '');
         
-        setResults(prev => ({
-          ...prev,
-          videoId,
-          videoTitle: title,
-          thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`
-        }));
+        // Try to load stored results
+        const storedResults = getStoredResults(videoId);
+        if (storedResults) {
+          setResults({
+            ...storedResults,
+            videoId,
+            videoTitle: title,
+            thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`
+          });
+        } else {
+          setResults(prev => ({
+            ...prev,
+            videoId,
+            videoTitle: title,
+            thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`
+          }));
+        }
       }
     } catch (err) {
       console.error('Error extracting video ID:', err);
@@ -104,17 +158,23 @@ const YouTubeVideoAssistant = () => {
       setIsProcessing(false);
     }
   };
-  
-  // Update results in state
+    // Update results in state
   const updateResults = (result) => {
     // Format quiz data from raw text to structured format
     const formattedQuiz = formatQuizData(result.quiz);
     
-    setResults(prev => ({
-      ...prev,
+    const newResults = {
+      ...results,
       summary: result.summary,
       quiz: formattedQuiz
-    }));
+    };
+    
+    setResults(newResults);
+    
+    // Store results in localStorage
+    if (results.videoId) {
+      storeResults(results.videoId, newResults);
+    }
   };
   
   // Format quiz text into structured data
