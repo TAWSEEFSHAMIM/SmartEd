@@ -295,7 +295,18 @@
   font-size: 12px;
   color: #888;
 }
+/* Add these styles to make bullet point text consistent with the rest of content */
 
+.mdx-editor-content {
+  font-size: 21px !important; /* Using !important to override any inline styles */
+  margin-bottom: 8px;
+}
+
+/* Make sure all text in the editor has consistent size */
+.mdx-editor-content li,
+.mdx-editor-content span, ul, ol {
+  font-size: 14px !important; /* Using !important to override any inline styles */
+}
 /* Animation for collapse/expand transitions */
 @keyframes slideIn {
   from { transform: translateY(100%); opacity: 0; }

@@ -1,7 +1,89 @@
 // YouTubeVideoAssistant.jsx - Modified for content script integration with collapsible UI
 import React, { useState, useEffect } from 'react';
+import { MDXEditor, headingsPlugin, listsPlugin, quotePlugin, markdownShortcutPlugin } from '@mdxeditor/editor';
+import '@mdxeditor/editor/style.css'; // Import the editor styles
 import './style.css';
+// Simple markdown parser component
+const SimpleMarkdown = ({ content }) => {
+  if (!content) return null;
 
+  // Split content into paragraphs
+  const paragraphs = content.split('\n\n');
+
+  return (
+    <div className="simple-markdown">
+      {paragraphs.map((paragraph, index) => {
+        // Handle headers
+        if (paragraph.startsWith('# ')) {
+          return <h1 key={index}>{paragraph.substring(2)}</h1>;
+        } else if (paragraph.startsWith('## ')) {
+          return <h2 key={index}>{paragraph.substring(3)}</h2>;
+        } else if (paragraph.startsWith('### ')) {
+          return <h3 key={index}>{paragraph.substring(4)}</h3>;
+        }
+
+        // Handle lists
+        if (paragraph.includes('\n- ')) {
+          const listItems = paragraph.split('\n- ').filter(item => item);
+          return (
+            <ul key={index}>
+              {listItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        // Handle numbered lists
+        if (/\n\d+\.\s/.test(paragraph)) {
+          const listItems = paragraph.split(/\n\d+\.\s/).filter(item => item);
+          return (
+            <ol key={index}>
+              {listItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ol>
+          );
+        }
+
+        // Simple paragraph with basic formatting
+        const formattedText = formatTextInline(paragraph);
+        return <p key={index}>{formattedText}</p>;
+      })}
+    </div>
+  );
+};
+
+// Helper function to format inline text (bold, italic)
+const formatTextInline = (text) => {
+  // We'll use a simple approach for inline formatting
+  // This won't handle nested formatting but works for basic cases
+
+  // Convert parts wrapped in ** to bold
+  let elements = [];
+  let lastIndex = 0;
+  let boldRegex = /\*\*(.*?)\*\*/g;
+  let match;
+
+  while ((match = boldRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      elements.push(text.substring(lastIndex, match.index));
+    }
+    elements.push(<strong key={`bold-${match.index}`}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    elements.push(text.substring(lastIndex));
+  }
+
+  // If no bold formatting was found, just return the text
+  if (elements.length === 0) {
+    return text;
+  }
+
+  return elements;
+};
 // Helper functions for localStorage
 const getStoredResults = (videoId) => {
   try {
@@ -382,7 +464,22 @@ const YouTubeVideoAssistant = () => {
             {activeTab === 'summary' && (
               <div className="summary-container">
                 <h3>Video Summary</h3>
-                <p>{results.summary || 'No summary available'}</p>
+                {results.summary ? (
+                  <div className="mdx-editor-container">
+                    <MDXEditor
+                      markdown={results.summary}
+                      readOnly={true}
+                      plugins={[
+                        headingsPlugin(),
+                        listsPlugin(),
+                        quotePlugin(),
+                        markdownShortcutPlugin()
+                      ]}
+                    />
+                  </div>
+                ) : (
+                  <p>No summary available</p>
+                )}
               </div>
             )}
 
