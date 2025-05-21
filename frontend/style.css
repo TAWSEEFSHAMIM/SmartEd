@@ -5,7 +5,9 @@
   width: 100%;
   max-width: 380px;
   margin-bottom: 20px;
+  height: 51rem;
   padding: 16px;
+  transform: translateX(-3rem);
   font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
   background-color: #f9f9f9;
