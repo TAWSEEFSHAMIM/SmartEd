@@ -58,10 +58,11 @@
   justify-content: center;
   transition: color 0.2s;
   transform: rotate(180deg);
-
+  transition: all 0.2s ease; 
 }
 .collapse-button-rotate {
   transform: rotate(0deg);
+  transition: all 0.2s ease; 
 
 }
 /* @keyframes spinbutton {
