@@ -1,4 +1,4 @@
-// YouTubeVideoAssistant.jsx - Modified for content script integration
+// YouTubeVideoAssistant.jsx - Modified for content script integration with collapsible UI
 import React, { useState, useEffect } from 'react';
 import './style.css';
 
@@ -24,12 +24,31 @@ const storeResults = (videoId, results) => {
   }
 };
 
+// Store UI collapsed state
+const getCollapsedState = () => {
+  try {
+    return localStorage.getItem('smarted_collapsed') === 'true';
+  } catch (error) {
+    console.error('Error reading collapsed state from localStorage:', error);
+    return false;
+  }
+};
+
+const setCollapsedState = (isCollapsed) => {
+  try {
+    localStorage.setItem('smarted_collapsed', isCollapsed.toString());
+  } catch (error) {
+    console.error('Error writing collapsed state to localStorage:', error);
+  }
+};
+
 // Main Component - Modified for inline YouTube page integration
 const YouTubeVideoAssistant = () => {
   // State management
   const [url, setUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('summary');
+  const [isCollapsed, setIsCollapsed] = useState(getCollapsedState());
   const [results, setResults] = useState({
     summary: '',
     quiz: [],
@@ -46,7 +65,7 @@ const YouTubeVideoAssistant = () => {
       setUrl(currentUrl);
       extractVideoId(currentUrl);
     }
-    
+
     // Listen for URL changes within the component
     const handleLocationChange = () => {
       const newUrl = window.location.href;
@@ -55,16 +74,16 @@ const YouTubeVideoAssistant = () => {
         extractVideoId(newUrl);
       }
     };
-    
+
     // Set up a MutationObserver to detect YouTube's navigation
     const observer = new MutationObserver((mutations) => {
       if (window.location.href !== url && window.location.href.includes('youtube.com/watch')) {
         handleLocationChange();
       }
     });
-    
+
     observer.observe(document.querySelector('title'), { subtree: true, characterData: true, childList: true });
-    
+
     return () => {
       observer.disconnect();
     };
@@ -96,11 +115,11 @@ const YouTubeVideoAssistant = () => {
     try {
       const urlParams = new URLSearchParams(new URL(url).search);
       const videoId = urlParams.get('v');
-      
+
       if (videoId) {
         // Get video title from the page
         const title = document.title.replace(' - YouTube', '');
-        
+
         // Try to load stored results
         const storedResults = getStoredResults(videoId);
         if (storedResults) {
@@ -124,16 +143,23 @@ const YouTubeVideoAssistant = () => {
     }
   };
 
+  // Toggle collapsed state 
+  const toggleCollapse = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    setCollapsedState(newState);
+  };
+
   // Process the video when user clicks the button
   const processVideo = async () => {
     if (!url.includes('youtube.com/watch')) {
       setError('Please navigate to a valid YouTube video');
       return;
     }
-    
+
     setIsProcessing(true);
     setError('');
-    
+
     try {
       // Call your backend API
       const response = await fetch('http://127.0.0.1:8000/complete-analysis', {
@@ -141,14 +167,14 @@ const YouTubeVideoAssistant = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || `Server returned ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      
+
       // Results available immediately since we're not using polling
       updateResults(data);
       setIsProcessing(false);
@@ -158,53 +184,53 @@ const YouTubeVideoAssistant = () => {
       setIsProcessing(false);
     }
   };
-    // Update results in state
+  // Update results in state
   const updateResults = (result) => {
     // Format quiz data from raw text to structured format
     const formattedQuiz = formatQuizData(result.quiz);
-    
+
     const newResults = {
       ...results,
       summary: result.summary,
       quiz: formattedQuiz
     };
-    
+
     setResults(newResults);
-    
+
     // Store results in localStorage
     if (results.videoId) {
       storeResults(results.videoId, newResults);
     }
   };
-  
+
   // Format quiz text into structured data
   const formatQuizData = (quizText) => {
     // Simple parsing - in production you'd want more robust parsing
     try {
       const questions = quizText.split(/Question \d+:/).filter(q => q.trim().length > 0);
-      
+
       return questions.map(q => {
         // Extract question text
         const questionText = q.split(/[A-D]:/)[0].trim();
-        
+
         // Extract options
         const options = [];
         const optionMatches = q.match(/[A-D]: (.*?)(?=(?:[A-D]:|Correct Answer:|$))/gs);
-        
+
         if (optionMatches) {
           optionMatches.forEach(option => {
             const [letter, text] = option.split(':').map(s => s.trim());
             options.push({ letter, text });
           });
         }
-        
+
         // Extract correct answer
         let correctAnswer = '';
         const answerMatch = q.match(/Correct Answer: ([A-D])/);
         if (answerMatch) {
           correctAnswer = answerMatch[1];
         }
-        
+
         return { questionText, options, correctAnswer };
       });
     } catch (e) {
@@ -218,18 +244,18 @@ const YouTubeVideoAssistant = () => {
     if (!results.quiz || results.quiz.length === 0) {
       return <p>No quiz data available</p>;
     }
-    
+
     return (
       <div className="quiz-container">
         {results.quiz.map((question, qIndex) => (
           <div key={qIndex} className="quiz-question">
             <h4>Question {qIndex + 1}</h4>
             <p>{question.questionText}</p>
-            
+
             <div className="quiz-options">
               {question.options.map((option, oIndex) => (
-                <div 
-                  key={oIndex} 
+                <div
+                  key={oIndex}
                   className={`quiz-option ${option.letter === question.correctAnswer ? 'correct' : ''}`}
                 >
                   <span className="option-letter">{option.letter}</span>
@@ -243,26 +269,87 @@ const YouTubeVideoAssistant = () => {
     );
   };
 
+  // Render the collapsed snackbar
+  const renderSnackbar = () => {
+    return (
+      <div className="yt-assistant-container">
+        <header className="extension-header">
+          <div className="header-content">
+            <h1>SmartEd</h1>
+            <button
+              className={`collapse-button ${isCollapsed ? 'collapse-button-rotate' : ''}`}
+              onClick={toggleCollapse}
+              aria-label="Collapse extension"
+            >
+              &#x25BC;
+            </button>
+          </div>
+        </header>
+
+        {/* Process Button */}
+        <div className="process-button-container">
+          <button
+            onClick={() => {
+              processVideo();
+              toggleCollapse();
+            }}
+            disabled={isProcessing || !url}
+            className="process-button full-width"
+          >
+            {isProcessing ? 'Processing Video...' : 'Analyze This Video'}
+          </button>
+        </div>
+
+        {/* Error Message */}
+        {error && <div className="error-message">{error}</div>}
+
+        {/* Processing Indicator */}
+        {isProcessing && (
+          <div className="processing-indicator">
+            <div className="spinner"></div>
+            <p>Processing video... This may take a minute.</p>
+          </div>
+        )}
+
+      </div>
+    );
+  };
+
+  // If collapsed, only render the snackbar
+  if (isCollapsed) {
+    return renderSnackbar();
+  }
+
+  // Render full extension UI if not collapsed
   return (
     <div className="yt-assistant-container">
       <header className="extension-header">
-        <h1>SmartEd</h1>
+        <div className="header-content">
+          <h1>SmartEd</h1>
+          <button
+            className="collapse-button"
+            onClick={toggleCollapse}
+            aria-label="Collapse extension"
+          >
+            &#x25BC;
+          </button>
+        </div>
       </header>
-      
+
       {/* Process Button */}
       <div className="process-button-container">
-        <button 
-          onClick={processVideo} 
+        <button
+          onClick={processVideo}
           disabled={isProcessing || !url}
           className="process-button full-width"
         >
           {isProcessing ? 'Processing Video...' : 'Analyze This Video'}
         </button>
       </div>
-      
+
       {/* Error Message */}
       {error && <div className="error-message">{error}</div>}
-      
+
       {/* Processing Indicator */}
       {isProcessing && (
         <div className="processing-indicator">
@@ -270,26 +357,26 @@ const YouTubeVideoAssistant = () => {
           <p>Processing video... This may take a minute.</p>
         </div>
       )}
-      
+
       {/* Results Section */}
       {!isProcessing && (results.summary || results.quiz.length > 0) && (
         <div className="results-container">
           {/* Tab Navigation */}
           <div className="tabs">
-            <button 
+            <button
               className={`tab-button ${activeTab === 'summary' ? 'active' : ''}`}
               onClick={() => setActiveTab('summary')}
             >
               Summary
             </button>
-            <button 
+            <button
               className={`tab-button ${activeTab === 'quiz' ? 'active' : ''}`}
               onClick={() => setActiveTab('quiz')}
             >
               Quiz
             </button>
           </div>
-          
+
           {/* Tab Content */}
           <div className="tab-content">
             {activeTab === 'summary' && (
@@ -298,7 +385,7 @@ const YouTubeVideoAssistant = () => {
                 <p>{results.summary || 'No summary available'}</p>
               </div>
             )}
-            
+
             {activeTab === 'quiz' && (
               <div className="quiz-container">
                 <h3>Knowledge Check</h3>
@@ -308,7 +395,7 @@ const YouTubeVideoAssistant = () => {
           </div>
         </div>
       )}
-      
+
       <footer className="extension-footer">
         <p>Powered by open-source NLP models</p>
       </footer>

@@ -1,11 +1,12 @@
-/* Updated YouTube Video Assistant Styles for Content Script */
+/* Updated YouTube Video Assistant Styles for Content Script with Collapsible UI */
 
 /* Base styling - modified for YouTube page integration */
 .yt-assistant-container {
   width: 100%;
   max-width: 380px;
   margin-bottom: 20px;
-  height: 51rem;
+  height: auto;
+  max-height: 51rem;
   padding: 16px;
   transform: translateX(-3rem);
   font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,6 +14,7 @@
   background-color: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: height 0.3s ease;
 }
 
 /* Smart-Ed container for proper positioning */
@@ -30,11 +32,77 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .extension-header h1 {
   margin: 0;
   font-size: 20px;
   color: #cc0000;
   font-weight: 600;
+}
+
+/* Collapse button */
+.collapse-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  transform: rotate(180deg);
+
+}
+.collapse-button-rotate {
+  transform: rotate(0deg);
+
+}
+/* @keyframes spinbutton {
+  0% { transform: rotate(180deg); }
+  100% { transform: rotate(0deg); }
+} */
+
+.collapse-button:hover {
+  color: #cc0000;
+}
+
+/* Snackbar styling for collapsed state */
+.smarted-snackbar {
+  /* display: flex; */
+  /* flex-direction: column;
+  justify-content: space-between;
+  align-items: center; */
+  /* background-color: #f9f9f9;
+  padding: 10px 16px;
+  border-radius: 24px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;*/
+  /* cursor: pointer; */
+  transition: all 0.2s ease; 
+}
+
+.smarted-snackbar:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.smarted-logo {
+  font-weight: 600;
+  font-size: 16px;
+  color: #cc0000;
+}
+
+.smarted-expand-icon {
+  color: #666;
+  font-size: 12px;
 }
 
 /* Process button - full width */
@@ -162,7 +230,6 @@
   font-size: 14px;
   margin: 0;
   white-space: pre-wrap;
-  
 }
 
 /* Quiz styling */
@@ -226,4 +293,15 @@
   text-align: center;
   font-size: 12px;
   color: #888;
+}
+
+/* Animation for collapse/expand transitions */
+@keyframes slideIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 0; }
 }
