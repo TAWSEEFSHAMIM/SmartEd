@@ -10,6 +10,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@mdxeditor/editor": "^3.32.3",
     "plasmo": "0.90.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"

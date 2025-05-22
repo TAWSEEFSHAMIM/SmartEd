@@ -55,7 +55,7 @@ def summarize_transcript(transcript, max_length=800):
     2. Core concepts and key points presented in the video
     3. Any important conclusions or takeaways
 
-    The summary should be concise while capturing the essential information a student would need to understand the video's content.
+    The summary should be concise while capturing the essential information a student would need to understand the video's content. Format the summary as markdown text with clear headings and bullet points where appropriate.
     Keep the summary under {max_length} words.
     """
 
