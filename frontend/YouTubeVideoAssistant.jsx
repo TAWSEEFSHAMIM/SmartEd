@@ -3,6 +3,107 @@ import React, { useState, useEffect } from 'react';
 import { MDXEditor, headingsPlugin, listsPlugin, quotePlugin, markdownShortcutPlugin } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css'; // Import the editor styles
 import './style.css';
+
+// Interactive Quiz Question Component
+const QuizQuestion = ({ question, questionIndex }) => {
+  const [selectedOption, setSelectedOption] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+
+  const handleSubmit = () => {
+    if (!selectedOption) return;
+    setIsSubmitted(true);
+    setShowResult(true);
+  };
+
+  const handleReset = () => {
+    setSelectedOption('');
+    setIsSubmitted(false);
+    setShowResult(false);
+  };
+
+  const isCorrect = selectedOption === question.correct_answer;
+
+  return (
+    <div className="quiz-question-card">
+      <div className="quiz-question-header">
+        <h4>Question {questionIndex + 1}</h4>
+      </div>
+      
+      <div className="quiz-question-text">
+        <p>{question.question}</p>
+      </div>
+
+      <div className="quiz-options">
+        {Object.entries(question.options).map(([optionKey, optionText]) => (
+          <label
+            key={optionKey}
+            className={`quiz-option-label ${
+              showResult ? (
+                optionKey === question.correct_answer ? 'correct-answer' :
+                optionKey === selectedOption ? 'incorrect-answer' : ''
+              ) : ''
+            } ${selectedOption === optionKey ? 'selected' : ''}`}
+          >
+            <input
+              type="radio"
+              name={`question-${questionIndex}`}
+              value={optionKey}
+              checked={selectedOption === optionKey}
+              onChange={(e) => setSelectedOption(e.target.value)}
+              disabled={isSubmitted}
+              className="quiz-option-input"
+            />
+            <div className="quiz-option-content">
+              <span className="option-letter">{optionKey}</span>
+              <span className="option-text">{optionText}</span>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div className="quiz-question-actions">
+        {!isSubmitted ? (
+          <button
+            onClick={handleSubmit}
+            disabled={!selectedOption}
+            className="quiz-submit-button"
+          >
+            Submit Answer
+          </button>
+        ) : (
+          <button
+            onClick={handleReset}
+            className="quiz-reset-button"
+          >
+            Try Again
+          </button>
+        )}
+      </div>
+
+      {showResult && (
+        <div className={`quiz-result ${isCorrect ? 'correct' : 'incorrect'}`}>
+          <div className="result-header">
+            {isCorrect ? (
+              <span className="result-icon correct-icon">✓</span>
+            ) : (
+              <span className="result-icon incorrect-icon">✗</span>
+            )}
+            <span className="result-text">
+              {isCorrect ? 'Correct!' : `Incorrect. The correct answer is ${question.correct_answer}.`}
+            </span>
+          </div>
+          {question.explanation && (
+            <div className="result-explanation">
+              <p><strong>Explanation:</strong> {question.explanation}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Simple markdown parser component
 const SimpleMarkdown = ({ content }) => {
   if (!content) return null;
@@ -84,6 +185,7 @@ const formatTextInline = (text) => {
 
   return elements;
 };
+
 // Helper functions for localStorage
 const getStoredResults = (videoId) => {
   try {
@@ -266,10 +368,11 @@ const YouTubeVideoAssistant = () => {
       setIsProcessing(false);
     }
   };
+
   // Update results in state
   const updateResults = (result) => {
-    // Format quiz data from raw text to structured format
-    const formattedQuiz = formatQuizData(result.quiz);
+    // Parse quiz data from JSON format
+    const formattedQuiz = parseQuizData(result.quiz);
 
     const newResults = {
       ...results,
@@ -285,68 +388,71 @@ const YouTubeVideoAssistant = () => {
     }
   };
 
-  // Format quiz text into structured data
-  const formatQuizData = (quizText) => {
-    // Simple parsing - in production you'd want more robust parsing
+  // Parse quiz data from JSON format
+  const parseQuizData = (quizData) => {
     try {
-      const questions = quizText.split(/Question \d+:/).filter(q => q.trim().length > 0);
-
-      return questions.map(q => {
-        // Extract question text
-        const questionText = q.split(/[A-D]:/)[0].trim();
-
-        // Extract options
-        const options = [];
-        const optionMatches = q.match(/[A-D]: (.*?)(?=(?:[A-D]:|Correct Answer:|$))/gs);
-
-        if (optionMatches) {
-          optionMatches.forEach(option => {
-            const [letter, text] = option.split(':').map(s => s.trim());
-            options.push({ letter, text });
-          });
+      console.log("Parsing quiz data:", quizData);
+      
+      // If quizData is a string, it might be wrapped in markdown code blocks
+      if (typeof quizData === 'string') {
+        let cleanedData = quizData.trim();
+        
+        // Remove markdown code block markers if present
+        if (cleanedData.startsWith('```json')) {
+          cleanedData = cleanedData.replace(/^```json\s*/i, '').replace(/\s*```$/, '');
+        } else if (cleanedData.startsWith('```')) {
+          cleanedData = cleanedData.replace(/^```\s*/, '').replace(/\s*```$/, '');
         }
-
-        // Extract correct answer
-        let correctAnswer = '';
-        const answerMatch = q.match(/Correct Answer: ([A-D])/);
-        if (answerMatch) {
-          correctAnswer = answerMatch[1];
-        }
-
-        return { questionText, options, correctAnswer };
-      });
+        
+        // Try to parse the cleaned JSON
+        const parsed = JSON.parse(cleanedData);
+        console.log("Parsed quiz data:", parsed);
+        return parsed.questions || [];
+      }
+      
+      // If it's already an object, check if it has questions property
+      if (quizData && quizData.questions) {
+        return quizData.questions;
+      }
+      
+      // If it's already an array of questions
+      if (Array.isArray(quizData)) {
+        return quizData;
+      }
+      
+      return [];
     } catch (e) {
       console.error("Error parsing quiz data:", e);
+      console.error("Raw quiz data:", quizData);
       return [];
     }
   };
 
-  // Render quiz questions
+  // Render quiz questions with interactive UI
   const renderQuiz = () => {
     if (!results.quiz || results.quiz.length === 0) {
-      return <p>No quiz data available</p>;
+      return (
+        <div className="no-quiz-message">
+          <p>No quiz data available. Process a video to generate quiz questions.</p>
+        </div>
+      );
     }
 
     return (
-      <div className="quiz-container">
-        {results.quiz.map((question, qIndex) => (
-          <div key={qIndex} className="quiz-question">
-            <h4>Question {qIndex + 1}</h4>
-            <p>{question.questionText}</p>
-
-            <div className="quiz-options">
-              {question.options.map((option, oIndex) => (
-                <div
-                  key={oIndex}
-                  className={`quiz-option ${option.letter === question.correctAnswer ? 'correct' : ''}`}
-                >
-                  <span className="option-letter">{option.letter}</span>
-                  <span className="option-text">{option.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="interactive-quiz-container">
+        <div className="quiz-header">
+          <p className="quiz-subtitle">Test your understanding with these questions based on the video content.</p>
+        </div>
+        
+        <div className="quiz-questions">
+          {results.quiz.map((question, index) => (
+            <QuizQuestion
+              key={index}
+              question={question}
+              questionIndex={index}
+            />
+          ))}
+        </div>
       </div>
     );
   };
@@ -455,7 +561,7 @@ const YouTubeVideoAssistant = () => {
               className={`tab-button ${activeTab === 'quiz' ? 'active' : ''}`}
               onClick={() => setActiveTab('quiz')}
             >
-              Quiz
+              Quiz ({results.quiz.length})
             </button>
           </div>
 
