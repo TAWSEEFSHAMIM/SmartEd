@@ -89,13 +89,13 @@ def quiz_endpoint(request: QuizRequest):
 def complete_analysis_endpoint(request: Request):
     """Gets transcript, summary, and quiz in one request"""
     try:
-        transcript = get_transcript(request.url)
-        if not transcript or transcript.startswith("Error") or transcript == "Invalid YouTube URL":
-            raise HTTPException(status_code=400, detail=transcript or "Failed to get transcript")
+        # transcript = get_transcript(request.url)
+        # if not transcript or transcript.startswith("Error") or transcript == "Invalid YouTube URL":
+        #     raise HTTPException(status_code=400, detail=transcript or "Failed to get transcript")
        
-        summary = summarize_transcript(transcript)
+        summary = summarize_transcript(request.url)
        
-        quiz_result = generate_quiz(transcript)
+        quiz_result = generate_quiz(request.url)
         
         # Handle different response formats - could be JSON string or dict with error
         if isinstance(quiz_result, dict) and "error" in quiz_result:
@@ -110,7 +110,6 @@ def complete_analysis_endpoint(request: Request):
                 pass
                 
         return {
-            "transcript": transcript,
             "summary": summary,
             "quiz": quiz_result
         }
@@ -118,3 +117,7 @@ def complete_analysis_endpoint(request: Request):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+# if __name__ == "__main__":      
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
