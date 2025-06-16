@@ -600,7 +600,7 @@ const YouTubeVideoAssistant = () => {
       )}
 
       <footer className="extension-footer">
-        <p>Powered by open-source NLP models</p>
+        <p>Powered by Gemini</p>
       </footer>
     </div>
   );

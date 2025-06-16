@@ -1,7 +1,5 @@
 import os
 from openai import OpenAI
-from google import genai
-from google.genai import types
 from dotenv import load_dotenv
 from transcript import get_transcript
 
@@ -11,27 +9,29 @@ api_key = os.getenv("GEMINI_API_KEY")
 SUMMARY_MODEL = "gemini-2.0-flash"
 QUIZ_MODEL = "gemini-2.0-flash"
 
-client = genai.Client(api_key=api_key)
+client = OpenAI(
+    api_key=api_key, 
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+)
 
-def summarize_transcript(url, max_length=800):
+def summarize_transcript(transcript, max_length=800):
     """
     Summarizes a video transcript using Gemini API.
 
     Args:
-        url (str): The YouTube video URL
+        transcript (str): The transcript text to summarize
         max_length (int): Maximum desired length of the summary
 
     Returns:
         str: A concise summary of the transcript
     """
-    # transcript = get_transcript(url)    
-    # if not transcript or len(transcript) < 50:
-    #     return "Transcript too short or empty to summarize."
+    if not transcript or len(transcript) < 50:
+        return "Transcript too short or empty to summarize."
 
-    system_instructions = f"""You are a specialized AI text summarization assistant embedded in a YouTube Video Assistant browser extension. Your sole purpose is to create concise, informative summaries of youtube videos that capture the key points while maintaining context and readability.
+    system_instructions = f"""You are a specialized AI text summarization assistant embedded in a YouTube Video Assistant browser extension. Your sole purpose is to create concise, informative summaries of video transcripts that capture the key points while maintaining context and readability.
 
     Guidelines:
-    1. Create summaries that are approximately 30% of the original video length, but make sure the summary is complete
+    1. Create summaries that are approximately 30% of the original transcript length, but make sure the summary is complete
     2. Focus on extracting the most important concepts, facts, and conclusions
     3. Preserve the original sequence of ideas when possible
     4. Use clear, direct language suitable for educational contexts
@@ -42,13 +42,13 @@ def summarize_transcript(url, max_length=800):
     9. Format technical content, steps, or lists in a structured way
     10. Exclude filler content, repetitions, or tangential information
 
-    Focus on the information provided in the video without making assumptions about missing content."""
+    Input may be partial transcripts from longer videos, so focus on the information provided without making assumptions about missing content."""
 
     prompt = f"""
-    Please summarize the following YouTube video:
-
-    VIDEO URL:
-    {url}
+    Please summarize the following YouTube video transcript:
+      
+    TRANSCRIPT:
+    {transcript}
 
     Format your summary to include:
     1. A one-sentence overview of the video's main topic
@@ -60,41 +60,38 @@ def summarize_transcript(url, max_length=800):
     """
 
     try:
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
             model=SUMMARY_MODEL,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instructions),
-            contents=types.Content(
-                parts=[
-                    types.Part(
-                        file_data=types.FileData(file_uri=url)
-                    ),
-                    types.Part(text=prompt)
-                ],
-            )
+            messages=[
+                {"role": "system", "content": system_instructions},
+                {"role": "user", "content": prompt},
+            ],
         )
-        return response.text
+        return response.choices[0].message.content
     except Exception as e:
         return f"Error generating summary: {str(e)}"
 
 
-def generate_quiz(url, num_questions=5):
+def generate_quiz(transcript, num_questions=5):
     """
-    Generates a quiz based on a video url using Gemini API.
+    Generates a quiz based on a video transcript using Gemini API.
     
     Args:
-        url (str): The YouTube video URL
+        transcript (str): The transcript text to generate a quiz from
         num_questions (int): Number of questions to generate
         
     Returns:
         dict: A JSON-formatted quiz with questions, options, and answers
     """
+    if not transcript or len(transcript) < 50:
+        return {"error": "Transcript too short or empty to generate quiz."}
+    
     system_instructions = f"""
-    You are a specialized AI quiz generator embedded in a YouTube Video Assistant browser extension. Your purpose is to create educational assessment questions based on video content that test understanding and retention of key concepts.
+    You are a specialized AI quiz generator embedded in a YouTube Video Assistant browser extension. Your purpose is to create educational assessment questions based on video transcript content that test understanding and retention of key concepts. 
     Guidelines:
     1. Generate multiple-choice questions that assess comprehension of main concepts
     2. Create questions of varying difficulty levels (recall, application, analysis)
-    3. Ensure all questions are directly answerable from the video content
+    3. Ensure all questions are directly answerable from the transcript content
     4. Write clear, unambiguous questions with precise wording
     5. Provide exactly one correct answer option and three plausible distractors
     6. Avoid extremely obvious incorrect options that don't challenge understanding
@@ -131,44 +128,39 @@ def generate_quiz(url, num_questions=5):
     prompt = f"""
     Based on the following YouTube video transcript, generate a quiz multiple-choice questions:
       
-    VIDEO URL:
-    {url}
+    TRANSCRIPT:
+    {transcript}
 
     For each question:
     1. Write a clear question that tests understanding of key concepts from the video
     2. Provide 4 options labeled A, B, C, and D
     3. Indicate the correct answer after each question
-    4. Ensure questions cover different parts or concepts from the video
+    4. Ensure questions cover different parts or concepts from the transcript
     5. Include at least one higher-level thinking question that requires analysis or application
     """
     
+    
     try:
-        response = client.models.generate_content(
-            model=SUMMARY_MODEL,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instructions),
-            contents=types.Content(
-                parts=[
-                    types.Part(
-                        file_data=types.FileData(file_uri=url)
-                    ),
-                    types.Part(text=prompt)
-                ],
-            )
+        response = client.chat.completions.create(
+            model=QUIZ_MODEL,
+            messages=[
+                {"role": "system", "content": system_instructions},
+                {"role": "user", "content": prompt},
+            ],
         )
-        return response.text
+        return response.choices[0].message.content
     except Exception as e:
-        return f"Error generating quiz: {str(e)}"
+        return {"error": f"Error generating quiz: {str(e)}"}
     
 if __name__ == "__main__":
     url ="https://www.youtube.com/watch?v=wjZofJX0v4M"
     
-    # transcript = get_transcript(url)
-    # print(f"{transcript[:300]}\n\n")
+    transcript = get_transcript(url)
+    print(f"{transcript[:300]}\n\n")
     
-    summary = summarize_transcript(url)
+    summary = summarize_transcript(transcript)
     print(f"{summary}\n\n")
     
-    quiz = generate_quiz(url)
+    quiz = generate_quiz(transcript)
     print(f"{quiz}\n\n")
     
