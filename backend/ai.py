@@ -159,7 +159,9 @@ def generate_quiz(url, num_questions=5):
         return response.text
     except Exception as e:
         return f"Error generating quiz: {str(e)}"
-    
+
+
+        
 if __name__ == "__main__":
     url ="https://www.youtube.com/watch?v=wjZofJX0v4M"
     
