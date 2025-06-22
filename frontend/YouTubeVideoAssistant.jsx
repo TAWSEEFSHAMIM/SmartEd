@@ -552,6 +552,12 @@ const YouTubeVideoAssistant = () => {
           {/* Tab Navigation */}
           <div className="tabs">
             <button
+              className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
+              onClick={() => setActiveTab('chat')}
+            >
+              Chat
+            </button>
+            <button
               className={`tab-button ${activeTab === 'summary' ? 'active' : ''}`}
               onClick={() => setActiveTab('summary')}
             >
@@ -567,6 +573,12 @@ const YouTubeVideoAssistant = () => {
 
           {/* Tab Content */}
           <div className="tab-content">
+            {activeTab === 'chat' && (
+              <div className="chat-container">
+                <h3>Chat (Coming Soon)</h3>
+                <p>This feature is under development.</p>
+              </div>
+            )}
             {activeTab === 'summary' && (
               <div className="summary-container">
                 <h3>Video Summary</h3>
@@ -600,7 +612,7 @@ const YouTubeVideoAssistant = () => {
       )}
 
       <footer className="extension-footer">
-        <p>Powered by Gemini</p>
+        <p>© 2025 Naveed. All rights reserved.</p>
       </footer>
     </div>
   );
