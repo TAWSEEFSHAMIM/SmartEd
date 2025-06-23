@@ -332,6 +332,18 @@ const ChatComponent = ({ url }) => {
 const SummaryComponent = ({ url, summary, setSummary }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [copyStatus, setCopyStatus] = useState('idle'); // Add copy status state
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(summary);
+      setCopyStatus('copied');
+      setTimeout(() => setCopyStatus('idle'), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      setCopyStatus('error');
+    }
+  };
 
   const loadSummary = async () => {
     if (!url) return;
@@ -373,7 +385,41 @@ const SummaryComponent = ({ url, summary, setSummary }) => {
 
   return (
     <div className="summary-container">
-      <h3>Video Summary</h3>
+      <div className="summary-header">
+        <h3>Video Summary</h3>
+        <button 
+          onClick={handleCopy}
+          className={`copy-button ${copyStatus}`}
+          aria-label="Copy"
+          title="Copy"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderRadius: '50%',
+            width: 24,
+            height: 24,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 'none',
+            marginLeft: 8,
+            transition: 'background 0.2s',
+            outline: 'none',
+            padding: 0
+          }}
+        >
+          {copyStatus === 'copied' ? (
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#4caf50" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="#000" d="M15.24 2h-3.894c-1.764 0-3.162 0-4.255.148c-1.126.152-2.037.472-2.755 1.193c-.719.721-1.038 1.636-1.189 2.766C3 7.205 3 8.608 3 10.379v5.838c0 1.508.92 2.8 2.227 3.342c-.067-.91-.067-2.185-.067-3.247v-5.01c0-1.281 0-2.386.118-3.27c.127-.948.413-1.856 1.147-2.593s1.639-1.024 2.583-1.152c.88-.118 1.98-.118 3.257-.118h3.07c1.276 0 2.374 0 3.255.118A3.6 3.6 0 0 0 15.24 2"/>
+              <path fill="#000" d="M6.6 11.397c0-2.726 0-4.089.844-4.936c.843-.847 2.2-.847 4.916-.847h2.88c2.715 0 4.073 0 4.917.847S21 8.671 21 11.397v4.82c0 2.726 0 4.089-.843 4.936c-.844.847-2.202.847-4.917.847h-2.88c-2.715 0-4.073 0-4.916-.847c-.844-.847-.844-2.21-.844-4.936z"/>
+            </svg>
+          )}
+        </button>
+      </div>
       
       {isLoading && (
         <div className="loading-indicator">
@@ -402,6 +448,7 @@ const SummaryComponent = ({ url, summary, setSummary }) => {
               quotePlugin(),
               markdownShortcutPlugin()
             ]}
+            theme={document.body.classList.contains('smarted-dark') ? 'dark' : 'light'}
           />
         </div>
       )}
@@ -558,6 +605,8 @@ const QuizComponent = ({ url, quiz, setQuiz }) => {
   );
 };
 
+const THEME_KEY = 'smarted_theme';
+
 // Main Component - Modified for inline YouTube page integration
 const YouTubeVideoAssistant2 = () => {
   // State management
@@ -573,6 +622,12 @@ const YouTubeVideoAssistant2 = () => {
     thumbnailUrl: ''
   });
   const [error, setError] = useState('');
+  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'light');
+
+  useEffect(() => {
+    document.body.classList.toggle('smarted-dark', theme === 'dark');
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
 
   // Get current YouTube URL when component mounts
   useEffect(() => {
@@ -784,7 +839,7 @@ if (isCollapsed) {
 }
 
 return (
-  <div className="yt-assistant-container">
+  <div className={`yt-assistant-container${theme === 'dark' ? ' smarted-dark' : ''}`}>
     {renderHeader()}
 
     {error && <div className="error-message">{error}</div>}
@@ -839,8 +894,35 @@ return (
       </div>
     )}
 
-    <footer className="extension-footer">
-      <p>© 2025 SmartEd. All rights reserved.</p>
+    <footer className="extension-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <p style={{ margin: 0 }}>© 2025 SmartEd. All rights reserved.</p>
+      <button
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        aria-label="Toggle dark/light theme"
+        style={{
+          background: 'none',
+          border: 'none',
+          outline: 'none',
+          cursor: 'pointer',
+          marginLeft: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 4,
+          borderRadius: 20,
+          transition: 'background 0.2s',
+          width: 36,
+          height: 36,
+        }}
+      >
+        {theme === 'dark' ? (
+          // Sun SVG (for switching to light mode)
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path fill="#fffcfc" d="M12 2.25a.75.75 0 0 1 .75.75v2a.75.75 0 1 1-1.5 0V3a.75.75 0 0 1 .75-.75m0 16.004a.75.75 0 0 1 .75.75v2a.75.75 0 1 1-1.5 0v-2a.75.75 0 0 1 .75-.75M2.25 12a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1-.75-.75m16 0a.75.75 0 0 1 .75-.75h2a.75.75 0 1 1 0 1.5h-2a.75.75 0 0 1-.75-.75m1.28-7.53a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 1 1-1.06-1.06l2-2a.75.75 0 0 1 1.06 0m-15.06 0a.75.75 0 0 1 1.06 0l2 2a.75.75 0 0 1-1.06 1.06l-2-2a.75.75 0 0 1 0-1.06m3.06 12a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 0 1-1.06-1.06l2-2a.75.75 0 0 1 1.06 0m8.94 0a.75.75 0 0 1 1.06 0l2 2a.75.75 0 1 1-1.06 1.06l-2-2a.75.75 0 0 1 0-1.06M12 7.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5"/></svg>
+        ) : (
+          // Moon SVG (for switching to dark mode)
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style={{padding: '5px'}}><path fill="#000" d="M12 22c5.523 0 10-4.477 10-10c0-.463-.694-.54-.933-.143a6.5 6.5 0 1 1-8.924-8.924C12.54 2.693 12.463 2 12 2C6.477 2 2 6.477 2 12s4.477 10 10 10"/></svg>
+        )}
+      </button>
     </footer>
   </div>
 );

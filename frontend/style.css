@@ -780,6 +780,45 @@ border: red solid 2px;
   animation: spin 1s linear infinite;
 }
 
+/* Copy button styles */
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.copy-button {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  margin-left: 8px;
+  transition: background 0.2s;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.copy-button:hover, .copy-button:focus {
+  background: #e9ebee;
+}
+
+.copy-button svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.copy-button.copied svg polyline {
+  stroke: red;
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
   .chat-container {
@@ -846,4 +885,224 @@ border: red solid 2px;
 @keyframes slideOut {
   from { transform: translateY(0); opacity: 1; }
   to { transform: translateY(100%); opacity: 0; }
+}
+
+/* Dark Theme Styles */
+.smarted-dark,
+.smarted-dark .yt-assistant-container {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .results-container,
+.smarted-dark .tab-content {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .extension-header,
+.smarted-dark .header-content {
+  background: #181a1b !important;
+  border-bottom: 1px solid #232526 !important;
+}
+.smarted-dark .tab-button {
+  background: #232526 !important;
+  color: #bdbdbd !important;
+}
+.smarted-dark .tab-button.active {
+  background: #181a1b !important;
+  color: #ff5252 !important;
+  border-bottom: 2px solid #ff5252 !important;
+}
+.smarted-dark .tab-button:hover:not(.active) {
+  background: #232526 !important;
+}
+.smarted-dark .summary-container,
+.smarted-dark .quiz-container {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .quiz-question-card {
+  background: #232526 !important;
+  border: 1px solid #333 !important;
+}
+.smarted-dark .quiz-option-label {
+  background: #232526 !important;
+  border: 2px solid #333 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .quiz-option-label.selected {
+  background: #2d2f31 !important;
+  border-color: #ff5252 !important;
+}
+.smarted-dark .quiz-option-label.correct-answer {
+  background: #1e2b22 !important;
+  border-color: #28a745 !important;
+  color: #b6f7c1 !important;
+}
+.smarted-dark .quiz-option-label.incorrect-answer {
+  background: #2d1e1e !important;
+  border-color: #dc3545 !important;
+  color: #f7b6b6 !important;
+}
+.smarted-dark .option-letter {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .quiz-option-label.selected .option-letter {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .quiz-option-label.correct-answer .option-letter {
+  background: #28a745 !important;
+  color: #fff !important;
+}
+.smarted-dark .quiz-option-label.incorrect-answer .option-letter {
+  background: #dc3545 !important;
+  color: #fff !important;
+}
+.smarted-dark .quiz-result.correct {
+  background: #1e2b22 !important;
+  border: 1px solid #28a745 !important;
+  color: #b6f7c1 !important;
+}
+.smarted-dark .quiz-result.incorrect {
+  background: #2d1e1e !important;
+  border: 1px solid #dc3545 !important;
+  color: #f7b6b6 !important;
+}
+.smarted-dark .quiz-question-header h4 {
+  color: #ff5252 !important;
+}
+.smarted-dark .quiz-question-text p {
+  color: #f1f1f1 !important;
+}
+.smarted-dark .process-button {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .process-button:hover {
+  background: #d32f2f !important;
+}
+.smarted-dark .process-button:disabled {
+  background: #444 !important;
+  color: #888 !important;
+}
+.smarted-dark .extension-footer {
+  color: #bdbdbd !important;
+  background: #181a1b !important;
+}
+.smarted-dark .theme-toggle-btn {
+  background: #232526 !important;
+  color: #ff5252 !important;
+  border: 1px solid #444 !important;
+  border-radius: 16px;
+  padding: 4px 14px;
+  margin-top: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.smarted-dark .theme-toggle-btn:hover {
+  background: #181a1b !important;
+  color: #fff !important;
+}
+.smarted-dark .copy-button {
+  background: transparent !important;
+}
+.smarted-dark .copy-button:hover, .smarted-dark .copy-button:focus {
+  background: #232526 !important;
+}
+.smarted-dark .copy-button svg path, .smarted-dark .copy-button svg polyline {
+  stroke: #ff5252 !important;
+  fill: none !important;
+}
+.smarted-dark .copy-button.copied svg polyline {
+  stroke: #28a745 !important;
+}
+.smarted-dark .error-message {
+  background: #2d1e1e !important;
+  color: #ffbdbd !important;
+}
+.smarted-dark .loading-indicator {
+  color: #bdbdbd !important;
+}
+.smarted-dark .chat-container,
+.smarted-dark .chat-history,
+.smarted-dark .chat-input-container {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .chat-question {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .chat-answer {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+.smarted-dark .chat-answer.chat-error {
+  background: #2d1e1e !important;
+  color: #ffbdbd !important;
+  border-color: #dc3545 !important;
+}
+.smarted-dark .chat-input {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+.smarted-dark .chat-input:disabled {
+  background: #232526 !important;
+  color: #888 !important;
+}
+.smarted-dark .chat-submit-button {
+  background: #232526 !important;
+  color: #ff5252 !important;
+  border: 1px solid #444 !important;
+}
+.smarted-dark .chat-submit-button:hover:not(:disabled) {
+  border: 1.5px solid #ff5252 !important;
+  background: #181a1b !important;
+  color: #fff !important;
+}
+.smarted-dark .chat-submit-button:disabled {
+  background: #232526 !important;
+  color: #888 !important;
+}
+.smarted-dark .spinner {
+  border-left-color: #ff5252 !important;
+}
+.smarted-dark .mdx-editor-container .mdxeditor-root,
+.smarted-dark .mdx-editor-container .mdxeditor-root-contenteditable,
+.smarted-dark .mdxeditor,
+.smarted-dark .mdxeditor * {
+  color: #f1f1f1 !important;
+  background: #232526 !important;
+  border-color: #333 !important;
+}
+
+.smarted-dark .mdxeditor-root-contenteditable h1,
+.smarted-dark .mdxeditor-root-contenteditable h2,
+.smarted-dark .mdxeditor-root-contenteditable h3,
+.smarted-dark .mdxeditor-root-contenteditable h4,
+.smarted-dark .mdxeditor-root-contenteditable h5,
+.smarted-dark .mdxeditor-root-contenteditable h6 {
+  color: #e0e0e0 !important;
+  background: #232526 !important;
+}
+
+.smarted-dark .mdxeditor-root-contenteditable a {
+  color: #8ab4f8 !important;
+  background: #232526 !important;
+}
+
+.smarted-dark .mdxeditor-root-contenteditable code,
+.smarted-dark .mdxeditor-root-contenteditable pre {
+  background: #232526 !important;
+  color: #ffb86c !important;
+}
+
+/* Extra: override any inline style color on the contenteditable */
+.smarted-dark [contenteditable="true"] {
+  color: #f1f1f1 !important;
+  background: #232526 !important;
 }
