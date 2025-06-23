@@ -409,8 +409,8 @@ const SummaryComponent = ({ url, summary, setSummary }) => {
           }}
         >
           {copyStatus === 'copied' ? (
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#4caf50" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#4caf50" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
+              <polyline points="2 7 6 11 12 3"></polyline>
             </svg>
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
