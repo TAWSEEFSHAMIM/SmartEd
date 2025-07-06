@@ -1,7 +1,7 @@
 // content.js - This script will be injected into YouTube pages
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import YouTubeVideoAssistant2 from './YouTubeVideoAssistant2.jsx';
+import smartedloader from './YouTubeVideoAssistant2.jsx';
 import './style.css';
 
 // Function to check if we're on a YouTube video page
@@ -35,7 +35,7 @@ function insertExtensionContainer() {
   
   // Render our React component into the container
   const root = createRoot(container);
-  root.render(<YouTubeVideoAssistant2/>);
+  root.render(<smartedloader/>);
 }
 
 // Function to handle URL changes (for YouTube's SPA navigation)
@@ -81,3 +81,32 @@ history.replaceState = function() {
 
 // Listen for popstate events (back/forward browser navigation)
 window.addEventListener('popstate', handleURLChange);
+
+// Additional YouTube navigation detection using MutationObserver
+// This helps catch cases where the above methods might miss navigation
+let currentUrl = window.location.href;
+
+const observer = new MutationObserver(() => {
+  if (window.location.href !== currentUrl) {
+    currentUrl = window.location.href;
+    handleURLChange();
+  }
+});
+
+// Start observing the document title as it changes when navigating on YouTube
+if (document.querySelector('title')) {
+  observer.observe(document.querySelector('title'), {
+    subtree: true,
+    characterData: true,
+    childList: true
+  });
+}
+
+// Also observe the main YouTube app container for changes
+const ytdApp = document.querySelector('ytd-app');
+if (ytdApp) {
+  observer.observe(ytdApp, {
+    childList: true,
+    subtree: false
+  });
+}

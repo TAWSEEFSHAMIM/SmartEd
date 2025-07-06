@@ -24,18 +24,28 @@
   width: 100%;
 }
 
-/* Header */
+/* Header - Modified to include process button and arrow in same line */
+/* Header Section */
 .extension-header {
-  text-align: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .header-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Distributes items */
+  align-items: center; /* Centers vertically */
+  width: 100%;
+  padding: 8px 16px;
+}
+
+.left-section {
+  display: flex;
   align-items: center;
+  gap: 8px; /* Small spacing between SmartEd and arrow */
 }
 
 .extension-header h1 {
@@ -43,83 +53,41 @@
   font-size: 20px;
   color: #cc0000;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
-/* Collapse button */
 .collapse-button {
   background: none;
   border: none;
   color: #666;
   cursor: pointer;
   font-size: 16px;
-  padding: 4px;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
-  transform: rotate(180deg);
-  transition: all 0.2s ease; 
+  transition: color 0.2s, transform 0.2s ease;
+  flex-shrink: 0;
 }
-.collapse-button-rotate {
-  transform: rotate(0deg);
-  transition: all 0.2s ease; 
-
-}
-/* @keyframes spinbutton {
-  0% { transform: rotate(180deg); }
-  100% { transform: rotate(0deg); }
-} */
 
 .collapse-button:hover {
   color: #cc0000;
 }
 
-/* Snackbar styling for collapsed state */
-.smarted-snackbar {
-  /* display: flex; */
-  /* flex-direction: column;
-  justify-content: space-between;
-  align-items: center; */
-  /* background-color: #f9f9f9;
-  padding: 10px 16px;
-  border-radius: 24px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  margin: 0 auto;*/
-  /* cursor: pointer; */
-  transition: all 0.2s ease; 
-}
-
-.smarted-snackbar:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-.smarted-logo {
-  font-weight: 600;
-  font-size: 16px;
-  color: #cc0000;
-}
-
-.smarted-expand-icon {
-  color: #666;
-  font-size: 12px;
-}
-
-/* Process button - full width */
 .process-button-container {
-  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.process-button.full-width {
+.process-button {
   background-color: #cc0000;
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 10px 16px;
+  padding: 8px 16px;
   cursor: pointer;
   font-weight: 500;
-  width: 100%;
   font-size: 14px;
 }
 
@@ -130,6 +98,26 @@
 .process-button:disabled {
   background-color: #999;
   cursor: not-allowed;
+}
+
+
+
+/* Snackbar styling for collapsed state */
+.smarted-snackbar {
+  transition: all 0.2s ease; 
+}
+
+
+
+.smarted-logo {
+  font-weight: 600;
+  font-size: 16px;
+  color: #cc0000;
+}
+
+.smarted-expand-icon {
+  color: #666;
+  font-size: 12px;
 }
 
 /* Error message */
@@ -173,7 +161,7 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  height: 380px; /* Set a maximum height */
+  height: 380px;
   display: flex;
   flex-direction: column;
 }
@@ -213,18 +201,13 @@
 /* Tab content */
 .tab-content {
   padding: 15px;
-  overflow-y: auto; /* Make this section scrollable */
+  overflow-y: auto;
   flex-grow: 1;
-  max-height: 100%; /* Account for tab header height */
+  max-height: 100%;
 }
 
 .summary-container h3,
-.quiz-container h3 {
-  margin-top: 0;
-  font-size: 16px;
-  color: #212121;
-  margin-bottom: 12px;
-}
+
 
 .summary-container p {
   line-height: 1.5;
@@ -295,17 +278,15 @@
   font-size: 12px;
   color: #888;
 }
-/* Add these styles to make bullet point text consistent with the rest of content */
 
 .mdx-editor-content {
-  font-size: 21px !important; /* Using !important to override any inline styles */
+  font-size: 21px !important;
   margin-bottom: 8px;
 }
 
-/* Make sure all text in the editor has consistent size */
 .mdx-editor-content li,
 .mdx-editor-content span, ul, ol {
-  font-size: 14px !important; /* Using !important to override any inline styles */
+  font-size: 14px !important;
 }
 
 /* Interactive Quiz Styles */
@@ -550,12 +531,10 @@
   font-size: 14px;
 }
 
-/* Update tab button to show quiz count */
 .tab-button {
   position: relative;
 }
 
-/* Responsive adjustments for quiz */
 @media (max-width: 480px) {
   .quiz-question-card {
     padding: 16px;
@@ -566,9 +545,9 @@
   }
   
   .option-letter {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
+    width: 8px;
+    height: 8px;
+    font-size: 8px;
     margin-right: 10px;
   }
   
@@ -576,6 +555,327 @@
     font-size: 13px;
   }
 }
+
+/* Chat Container - WhatsApp-like Design */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+
+
+/* Chat History - Scrollable Area */
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+  background: #ffffff;
+}
+
+.chat-history::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-history::-webkit-scrollbar-track {
+  background: #f1f3f4;
+  border-radius: 3px;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+  background: #c1c8cd;
+  border-radius: 3px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+  background: #a8b2ba;
+}
+
+.chat-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 16px;
+}
+
+.chat-placeholder p {
+  margin: 0;
+  font-style: italic;
+}
+
+.chat-exchange {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-question {
+  align-self: flex-end;
+  background: red;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 16px 16px 4px 16px;
+  max-width: 85%;
+  word-wrap: break-word;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.15);
+}
+
+.chat-question strong {
+  display: none;
+}
+
+.chat-answer {
+  align-self: flex-start;
+  background: #f8f9fa;
+  color: #2d3748;
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  max-width: 90%;
+  word-wrap: break-word;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chat-answer strong {
+  display: none;
+}
+
+.chat-answer.chat-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Chat Input Container - WhatsApp Style */
+.chat-input-container {
+  
+  padding: 4px;
+  background: #f8f9fa;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 5px 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-style: italic;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  height: 14px;
+  resize: none;
+  outline: none;
+  
+ 
+}
+
+.chat-input:focus {
+  border-color: #3f3f3f;
+  
+}
+
+.chat-input:disabled {
+  background: #f7fafc;
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.chat-input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Send Button - WhatsApp Style */
+.chat-submit-button {
+  background: rgb(247, 247, 247);
+  color: red;
+  border: none;
+  padding: 4px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.chat-submit-button:hover:not(:disabled) {
+
+border: red solid 2px;
+  transform: scale(1.05);
+}
+
+.chat-submit-button:active {
+  transform: scale(0.95);
+}
+
+.chat-submit-button:disabled {
+  background: #ffffff;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Add a send icon to the button */
+.chat-submit-button::before {
+  content: '➤';
+  transform: rotate(0deg);
+}
+
+.chat-loading {
+  align-self: flex-start;
+  background: #f8f9fa;
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.chat-loading::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid red;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Copy button styles */
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.copy-button {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  margin-left: 8px;
+  transition: background 0.2s;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.copy-button:hover, .copy-button:focus {
+  background: #e9ebee;
+}
+
+.copy-button svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.copy-button.copied svg polyline {
+  stroke: red;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .chat-container {
+    height: 350px;
+  }
+  
+  .chat-container h3 {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  
+  .chat-question,
+  .chat-answer {
+    font-size: 12px;
+    max-width: 95%;
+    padding: 6px 10px;
+  }
+  
+  .chat-input {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .chat-submit-button {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .chat-history {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  /* Header responsive adjustments */
+  .extension-header h1 {
+    font-size: 16px;
+  }
+  
+  .process-button.full-width {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .process-button-container {
+    margin: 0 12px;
+  }
+}
+
+/* Accessibility improvements */
+
+
+.chat-submit-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
 /* Animation for collapse/expand transitions */
 @keyframes slideIn {
   from { transform: translateY(100%); opacity: 0; }
@@ -585,4 +885,224 @@
 @keyframes slideOut {
   from { transform: translateY(0); opacity: 1; }
   to { transform: translateY(100%); opacity: 0; }
+}
+
+/* Dark Theme Styles */
+.smarted-dark,
+.smarted-dark .yt-assistant-container {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .results-container,
+.smarted-dark .tab-content {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .extension-header,
+.smarted-dark .header-content {
+  background: #181a1b !important;
+  border-bottom: 1px solid #232526 !important;
+}
+.smarted-dark .tab-button {
+  background: #232526 !important;
+  color: #bdbdbd !important;
+}
+.smarted-dark .tab-button.active {
+  background: #181a1b !important;
+  color: #ff5252 !important;
+  border-bottom: 2px solid #ff5252 !important;
+}
+.smarted-dark .tab-button:hover:not(.active) {
+  background: #232526 !important;
+}
+.smarted-dark .summary-container,
+.smarted-dark .quiz-container {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .quiz-question-card {
+  background: #232526 !important;
+  border: 1px solid #333 !important;
+}
+.smarted-dark .quiz-option-label {
+  background: #232526 !important;
+  border: 2px solid #333 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .quiz-option-label.selected {
+  background: #2d2f31 !important;
+  border-color: #ff5252 !important;
+}
+.smarted-dark .quiz-option-label.correct-answer {
+  background: #1e2b22 !important;
+  border-color: #28a745 !important;
+  color: #b6f7c1 !important;
+}
+.smarted-dark .quiz-option-label.incorrect-answer {
+  background: #2d1e1e !important;
+  border-color: #dc3545 !important;
+  color: #f7b6b6 !important;
+}
+.smarted-dark .option-letter {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .quiz-option-label.selected .option-letter {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .quiz-option-label.correct-answer .option-letter {
+  background: #28a745 !important;
+  color: #fff !important;
+}
+.smarted-dark .quiz-option-label.incorrect-answer .option-letter {
+  background: #dc3545 !important;
+  color: #fff !important;
+}
+.smarted-dark .quiz-result.correct {
+  background: #1e2b22 !important;
+  border: 1px solid #28a745 !important;
+  color: #b6f7c1 !important;
+}
+.smarted-dark .quiz-result.incorrect {
+  background: #2d1e1e !important;
+  border: 1px solid #dc3545 !important;
+  color: #f7b6b6 !important;
+}
+.smarted-dark .quiz-question-header h4 {
+  color: #ff5252 !important;
+}
+.smarted-dark .quiz-question-text p {
+  color: #f1f1f1 !important;
+}
+.smarted-dark .process-button {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .process-button:hover {
+  background: #d32f2f !important;
+}
+.smarted-dark .process-button:disabled {
+  background: #444 !important;
+  color: #888 !important;
+}
+.smarted-dark .extension-footer {
+  color: #bdbdbd !important;
+  background: #181a1b !important;
+}
+.smarted-dark .theme-toggle-btn {
+  background: #232526 !important;
+  color: #ff5252 !important;
+  border: 1px solid #444 !important;
+  border-radius: 16px;
+  padding: 4px 14px;
+  margin-top: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.smarted-dark .theme-toggle-btn:hover {
+  background: #181a1b !important;
+  color: #fff !important;
+}
+.smarted-dark .copy-button {
+  background: transparent !important;
+}
+.smarted-dark .copy-button:hover, .smarted-dark .copy-button:focus {
+  background: #232526 !important;
+}
+.smarted-dark .copy-button svg path, .smarted-dark .copy-button svg polyline {
+  stroke: #ff5252 !important;
+  fill: none !important;
+}
+.smarted-dark .copy-button.copied svg polyline {
+  stroke: #28a745 !important;
+}
+.smarted-dark .error-message {
+  background: #2d1e1e !important;
+  color: #ffbdbd !important;
+}
+.smarted-dark .loading-indicator {
+  color: #bdbdbd !important;
+}
+.smarted-dark .chat-container,
+.smarted-dark .chat-history,
+.smarted-dark .chat-input-container {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .chat-question {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .chat-answer {
+  background: #232526 !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+.smarted-dark .chat-answer.chat-error {
+  background: #2d1e1e !important;
+  color: #ffbdbd !important;
+  border-color: #dc3545 !important;
+}
+.smarted-dark .chat-input {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+.smarted-dark .chat-input:disabled {
+  background: #232526 !important;
+  color: #888 !important;
+}
+.smarted-dark .chat-submit-button {
+  background: #232526 !important;
+  color: #ff5252 !important;
+  border: 1px solid #444 !important;
+}
+.smarted-dark .chat-submit-button:hover:not(:disabled) {
+  border: 1.5px solid #ff5252 !important;
+  background: #181a1b !important;
+  color: #fff !important;
+}
+.smarted-dark .chat-submit-button:disabled {
+  background: #232526 !important;
+  color: #888 !important;
+}
+.smarted-dark .spinner {
+  border-left-color: #ff5252 !important;
+}
+.smarted-dark .mdx-editor-container .mdxeditor-root,
+.smarted-dark .mdx-editor-container .mdxeditor-root-contenteditable,
+.smarted-dark .mdxeditor,
+.smarted-dark .mdxeditor * {
+  color: #f1f1f1 !important;
+  background: #232526 !important;
+  border-color: #333 !important;
+}
+
+.smarted-dark .mdxeditor-root-contenteditable h1,
+.smarted-dark .mdxeditor-root-contenteditable h2,
+.smarted-dark .mdxeditor-root-contenteditable h3,
+.smarted-dark .mdxeditor-root-contenteditable h4,
+.smarted-dark .mdxeditor-root-contenteditable h5,
+.smarted-dark .mdxeditor-root-contenteditable h6 {
+  color: #e0e0e0 !important;
+  background: #232526 !important;
+}
+
+.smarted-dark .mdxeditor-root-contenteditable a {
+  color: #8ab4f8 !important;
+  background: #232526 !important;
+}
+
+.smarted-dark .mdxeditor-root-contenteditable code,
+.smarted-dark .mdxeditor-root-contenteditable pre {
+  background: #232526 !important;
+  color: #ffb86c !important;
+}
+
+/* Extra: override any inline style color on the contenteditable */
+.smarted-dark [contenteditable="true"] {
+  color: #f1f1f1 !important;
+  background: #232526 !important;
 }
