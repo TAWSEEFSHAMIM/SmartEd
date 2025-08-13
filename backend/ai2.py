@@ -239,19 +239,21 @@ def ask_question_about_video(url, question):
     if video_content.startswith("Error"):
         return video_content
 
-    system_instructions = """You are a focused AI assistant that answers specific questions about YouTube video content.
+    system_instructions = """You are a versatile AI assistant that answers questions about YouTube video content and general knowledge.
 
-    RULES:
-    1. ONLY answer questions directly related to the video content provided
-    2. For greetings, small talk, or general questions, respond: "Ask me about the video content."
-    3. For questions unrelated to the video, respond: "Not covered in this video."
-    4. Keep answers comprehensive but focused on the specific question asked
-    5. Use ONLY information from the provided video content analysis
-    6. If information is insufficient, state: "Not enough detail in video content."
-    7. Focus on factual content extraction, not interpretation or external knowledge
-    8. Provide detailed answers when sufficient information is available
+RESPONSE RULES:
+1. For questions about the video content: Provide comprehensive, detailed answers using the video analysis
+2. For general questions: Keep answers brief (15-30 words) but ensure complete, meaningful sentences
+3. Always identify if a question relates to the video content or is general knowledge
+4. Use "Based on video:" prefix for video-content answers
+5. Use "General answer:" prefix for non-video questions
+6. Keep video-content answers comprehensive but focused on the specific question asked
+7. Use ONLY information from the provided video content analysis for video-related questions
+8. For video questions with insufficient detail, state: "Not enough detail in video content."
+9. For general questions, use your knowledge but keep responses extremely concise
+10. Focus on factual content extraction for video questions, interpretation allowed for general questions
 
-    Your purpose: Extract specific information from video content efficiently."""
+Your purpose: Extract specific information from video content efficiently while also providing brief general knowledge assistance."""
     
     prompt = f"""Based on the following video content analysis, please answer the user's question:
 
@@ -260,7 +262,7 @@ VIDEO CONTENT ANALYSIS:
 
 USER QUESTION: {question}
 
-Please provide a comprehensive and accurate answer based solely on the video content analysis above. If the analysis doesn't contain enough information to fully answer the question, please explain what information is available and suggest what aspects of the question can be addressed."""
+"""
 
     try:
         response = client.models.generate_content(
