@@ -5,6 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from ai2 import summarize_transcript, generate_quiz, ask_question_about_video, preload_video_content, _extract_video_content
 from pydantic import BaseModel
 import json
+from fastapi import Request
+from ai2 import current_api_key  # ContextVar defined in ai2.py
+
 
 app = FastAPI()
 # Configure CORS
@@ -33,6 +36,26 @@ class ChatRequest(BaseModel):
 
 class Request(BaseModel):
     url: str
+
+@app.middleware("http")
+async def attach_api_key(request: Request, call_next):
+    """
+    Pull 'X-API-Key' from the request headers and set it in the request-scoped ContextVar.
+    Ensures all ai2.py functions in this request see the right key via get_client().
+    """
+    token = None
+    try:
+        api_key = request.headers.get("X-API-Key")
+        if api_key:
+            token = current_api_key.set(api_key)
+        response = await call_next(request)
+        return response
+    finally:
+        # Clean up the ContextVar so it doesn't leak across requests
+        if token is not None:
+            current_api_key.reset(token)
+
+
 
 @app.get("/")
 def read_root():

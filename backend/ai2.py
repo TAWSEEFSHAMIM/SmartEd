@@ -3,26 +3,49 @@ from openai import OpenAI
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
-from transcript import get_transcript
+from contextvars import ContextVar
+from typing import Optional
+
 
 load_dotenv()
 # Use GOOGLE_API_KEY since that's what the library prefers
-api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+# DEFAULT_API_KEY: Optional[str] = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+
+# Request-scoped API key (set by middleware in main2.py)
+current_api_key: ContextVar[Optional[str]] = ContextVar("current_api_key", default=None)
+
 
 SUMMARY_MODEL = "gemini-2.0-flash"
 QUIZ_MODEL = "gemini-2.0-flash"
 CHAT_MODEL = "gemini-2.0-flash"
 
-client = genai.Client(api_key=api_key)
+
+
+
+def _active_api_key() -> Optional[str]:
+  """Return the API key for the current request (user key first, else default)."""
+  return current_api_key.get()
+
+def get_client():
+  """Return a Gemini client bound to the active (request-scoped) API key."""
+  key = _active_api_key()
+  if not key:
+    raise RuntimeError(
+      "No Gemini API key provided. Pass X-API-Key from the extension or set GOOGLE_API_KEY in .env."
+    )
+  return genai.Client(api_key=key)
 
 # Global variables to store video data
 _video_cache = {}
 
 def _extract_video_content(url):
+    
     """
     Private function to extract comprehensive video content using Gemini API.
     This content will be used for summary, quiz, and chat features.
     """
+    client = get_client()
+
     if url in _video_cache:
         return _video_cache[url]
     
@@ -95,6 +118,8 @@ def summarize_transcript(url, max_length=800):
     Returns:
         str: A concise summary of the transcript
     """
+    client = get_client()
+
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
     
@@ -154,6 +179,8 @@ def generate_quiz(url, num_questions=5):
     Returns:
         dict: A JSON-formatted quiz with questions, options, and answers
     """
+    client = get_client()
+
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
     
@@ -233,6 +260,8 @@ def ask_question_about_video(url, question):
     Returns:
         str: Answer to the question based on video content
     """
+    client = get_client()
+
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
     
@@ -292,6 +321,7 @@ def preload_video_content(url):
     Returns:
         bool: True if successful, False otherwise
     """
+    
     try:
         content = _extract_video_content(url)
         return not content.startswith("Error")

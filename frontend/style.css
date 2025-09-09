@@ -1106,3 +1106,309 @@ border: red solid 2px;
   color: #f1f1f1 !important;
   background: #232526 !important;
 }
+
+
+/* ================= Settings Page Styles ================= */
+
+.settings-container {
+  width: 100%;
+  max-width: 100%;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings-container h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #cc0000;
+  margin: 0;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #cc0000;
+}
+
+.theme-setting,
+.api-key-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.theme-setting label,
+.api-key-setting label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #444;
+}
+
+.theme-setting button {
+  background: #cc0000;
+  color: #ffffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-setting button:hover {
+  background: #b00000;
+}
+
+.api-input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.api-input:focus {
+  border-color: #cc0000;
+}
+
+.save-btn {
+  background: #cc0000;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  align-self: flex-start;
+}
+
+.save-btn:hover {
+  background: #b00000;
+}
+
+/* ================= Dark Theme Support ================= */
+.smarted-dark .settings-container {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+}
+
+/* Fix for settings button text color in dark theme */
+.smarted-dark .settings-button,
+.smarted-dark button[aria-label="Settings"] {
+  color: #f1f1f1 !important;
+}
+
+.smarted-dark .settings-container h2 {
+  color: #ff5252 !important;
+  border-bottom: 1px solid #232526 !important;
+}
+
+.smarted-dark .close-btn {
+  color: #bdbdbd !important;
+}
+.smarted-dark .close-btn:hover {
+  color: #ff5252 !important;
+}
+
+.smarted-dark .theme-setting label,
+.smarted-dark .api-key-setting label {
+  color: #f1f1f1 !important;
+}
+
+.smarted-dark .theme-setting button {
+  background: #ff5252 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.smarted-dark .save-btn {
+  background: #ff5252 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.smarted-dark .theme-setting button:hover,
+.smarted-dark .save-btn:hover {
+  background: #d32f2f !important;
+}
+
+.smarted-dark .api-input {
+  background: #232526 !important;
+  border: 1px solid #444 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .api-input:focus {
+  border-color: #ff5252 !important;
+}
+
+
+/* ================= Key Option Page Styles ================= */
+
+.key-option-container {
+  width: 100%;
+  max-width: 380px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.key-option-container h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #cc0000;
+  margin: 0;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.key-option-container .close-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.key-option-container .close-btn:hover {
+  color: #cc0000;
+}
+
+.key-option-container .api-input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.key-option-container .api-input:focus {
+  border-color: #cc0000;
+}
+
+.key-option-container .description {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.key-option-container .guide-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: #cc0000;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.key-option-container .guide-link:hover {
+  color: #b00000;
+  text-decoration: underline;
+}
+
+.key-option-container .save-btn {
+  background: #cc0000;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  align-self: flex-start;
+}
+
+.key-option-container .save-btn:hover {
+  background: #b00000;
+}
+
+/* ================= Dark Theme Support ================= */
+.smarted-dark .key-option-container {
+  background: #181a1b !important;
+  color: #f1f1f1 !important;
+}
+
+.smarted-dark .key-option-container h2 {
+  color: #ff5252 !important;
+  border-bottom: 1px solid #232526 !important;
+}
+
+.smarted-dark .key-option-container .close-btn {
+  color: #bdbdbd !important;
+}
+.smarted-dark .key-option-container .close-btn:hover {
+  color: #ff5252 !important;
+}
+
+.smarted-dark .key-option-container .api-input {
+  background: #232526 !important;
+  border: 1px solid #444 !important;
+  color: #f1f1f1 !important;
+}
+.smarted-dark .key-option-container .api-input:focus {
+  border-color: #ff5252 !important;
+}
+
+.smarted-dark .key-option-container .description {
+  color: #bbb !important;
+}
+
+.smarted-dark .key-option-container .guide-link {
+  color: #ff5252 !important;
+}
+.smarted-dark .key-option-container .guide-link:hover {
+  color: #d32f2f !important;
+}
+
+.smarted-dark .key-option-container .save-btn {
+  background: #ff5252 !important;
+  color: #fff !important;
+}
+.smarted-dark .key-option-container .save-btn:hover {
+  background: #d32f2f !important;
+}
+
+/* Settings icon and button specific styling */
+.settings-icon {
+  color: #666;
+}
+
+.smarted-dark .settings-icon,
+.smarted-dark span[role="img"],
+.smarted-dark button[aria-label="Settings"] span {
+  color: #f1f1f1 !important;
+}
