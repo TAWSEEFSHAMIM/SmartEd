@@ -12,7 +12,7 @@ const Setting = ({ currentTheme, setTheme, onClose }) => {
   const handleSave = () => {
     if (!apiKey.trim()) return;
     chrome.runtime.sendMessage(
-      { type: "SET_API_KEY", key: apiKey },
+      { type: "SAVE_API_KEY", apiKey: apiKey.trim() },
       (response) => {
         if (response.success) {
           console.log("API key updated!");
@@ -35,14 +35,42 @@ const Setting = ({ currentTheme, setTheme, onClose }) => {
 
       <div className="api-key-setting">
         <label>Google API Key:</label>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your API key"
-          className="api-input"
-        />
-        <button className="save-btn" onClick={handleSave}>Save</button>
+        <div className="api-input-group">
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your API key"
+            className="api-input"
+          />
+          <div className="api-key-actions">
+            <button 
+              className="save-btn" 
+              onClick={handleSave}
+              disabled={!apiKey.trim()}
+            >
+              Save
+            </button>
+            {apiKey && (
+              <button 
+                className="delete-btn" 
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to delete your API key?")) {
+                    chrome.runtime.sendMessage({ type: "DELETE_API_KEY" }, (response) => {
+                      if (response.success) {
+                        setApiKey("");
+                        console.log("API key deleted!");
+                      }
+                    });
+                  }
+                }}
+                title="Delete API Key"
+              >
+                🗑️
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

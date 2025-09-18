@@ -1179,6 +1179,18 @@ border: red solid 2px;
   background: #b00000;
 }
 
+.api-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.api-key-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .api-input {
   padding: 10px 12px;
   border: 1px solid #ccc;
@@ -1202,7 +1214,45 @@ border: red solid 2px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease;
-  align-self: flex-start;
+}
+
+.save-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #ffebee;
+  color: #cc0000;
+}
+
+/* Dark theme support */
+.smarted-dark .delete-btn {
+  color: #bdbdbd;
+}
+
+.smarted-dark .delete-btn:hover {
+  background-color: #2d1e1e;
+  color: #ff5252;
+}
+
+.smarted-dark .save-btn:disabled {
+  background: #333333;
+  color: #666666;
 }
 
 .save-btn:hover {
@@ -1402,13 +1452,64 @@ border: red solid 2px;
   background: #d32f2f !important;
 }
 
-/* Settings icon and button specific styling */
-.settings-icon {
-  color: #666;
+/* Content Loading States */
+.summary-container,
+.quiz-container {
+  position: relative;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-.smarted-dark .settings-icon,
-.smarted-dark span[role="img"],
-.smarted-dark button[aria-label="Settings"] span {
-  color: #f1f1f1 !important;
+.content-loading-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 10;
+}
+
+.content-loading-indicator .spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: #cc0000;
+  animation: spin 1s linear infinite;
+}
+
+.content-loading-indicator p {
+  margin: 16px 0 0 0;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+/* Dark theme support for loading states */
+.smarted-dark .content-loading-indicator {
+  background: rgba(35, 37, 38, 0.95);
+}
+
+.smarted-dark .content-loading-indicator p {
+  color: #bdbdbd;
+}
+
+.settings-icon {
+  color: #070707;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.settings-icon:hover {
+  opacity: 0.8;
+}
+
+.smarted-dark .settings-icon {
+  color: #f1f1f1;
 }

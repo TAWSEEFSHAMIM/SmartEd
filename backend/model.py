@@ -2,16 +2,16 @@ import os
 from openai import OpenAI
 from google import genai
 from google.genai import types
-from dotenv import load_dotenv
+
 from contextvars import ContextVar
 from typing import Optional
 
 
-load_dotenv()
+
 # Use GOOGLE_API_KEY since that's what the library prefers
 # DEFAULT_API_KEY: Optional[str] = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
-# Request-scoped API key (set by middleware in main2.py)
+# Request-scoped API key (set by middleware in main.py)
 current_api_key: ContextVar[Optional[str]] = ContextVar("current_api_key", default=None)
 
 
@@ -268,30 +268,53 @@ def ask_question_about_video(url, question):
     if video_content.startswith("Error"):
         return video_content
 
-    system_instructions = """You are a versatile AI assistant that answers questions about YouTube video content and general knowledge.
+    system_instructions = """
+You are SmartEd AI, a versatile educational assistant. Your primary purpose is to answer questions using the provided YouTube video transcript.
 
 RESPONSE RULES:
-1. For questions about the video content: Provide comprehensive, detailed answers using the video analysis
-2. For general questions: Keep answers brief (15-30 words) but ensure complete, meaningful sentences
-3. Always identify if a question relates to the video content or is general knowledge
-4. Use "Based on video:" prefix for video-content answers
-5. Use "General answer:" prefix for non-video questions
-6. Keep video-content answers comprehensive but focused on the specific question asked
-7. Use ONLY information from the provided video content analysis for video-related questions
-8. For video questions with insufficient detail, state: "Not enough detail in video content."
-9. For general questions, use your knowledge but keep responses extremely concise
-10. Focus on factual content extraction for video questions, interpretation allowed for general questions
+1. **Video Questions (priority)**:
+   - Prefix with: "Based on video:"
+   - Always use transcript context first.
+   - Provide detailed, well-structured explanations.
+   - Use your general knowledge ONLY to add clarity or context, but clearly separate it.
+   - If transcript doesn’t contain enough detail, say: "Not enough detail in video content."
 
-Your purpose: Extract specific information from video content efficiently while also providing brief general knowledge assistance."""
+2. **General Questions**:
+   
+   - Keep answers brief (15–30 words), factual, and clear.
+   - Avoid overexplaining.
+
+3. **Identification**:
+   - Always decide whether the question is about the video or is general knowledge.
+
+4. **Style**:
+   - For video answers: provide clarity, examples, and explanations that help the user understand better.
+   - For general answers: concise, direct, no fluff.
+
+5. **Constraints**:
+   - Never invent video facts not present in the transcript.
+   - Use your own knowledge only for background, definitions, or examples when the transcript is insufficient.
+   - Maintain an educational tone that helps the user learn.
+"""
+
     
-    prompt = f"""Based on the following video content analysis, please answer the user's question:
+    prompt = f"""
+You are answering as SmartEd AI.
 
-VIDEO CONTENT ANALYSIS:
+VIDEO CONTENT ANALYSIS (Transcript Extracted):
 {video_content}
 
-USER QUESTION: {question}
+USER QUESTION:
+{question}
 
+TASK:
+- Decide if the question is about the video or general knowledge.
+- If about the video → Answer comprehensively using transcript content. Add context/explanation only if necessary for understanding.
+- If general → Give a short, precise answer (10–30 words) or less .
+
+Final Answer:
 """
+
 
     try:
         response = client.models.generate_content(

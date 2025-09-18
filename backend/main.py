@@ -2,11 +2,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 # from transcript import get_transcript
-from ai2 import summarize_transcript, generate_quiz, ask_question_about_video, preload_video_content, _extract_video_content
+from model import summarize_transcript, generate_quiz, ask_question_about_video, preload_video_content, _extract_video_content
 from pydantic import BaseModel
 import json
 from fastapi import Request
-from ai2 import current_api_key  # ContextVar defined in ai2.py
+from model import current_api_key  # ContextVar defined in model.py
 
 
 app = FastAPI()
@@ -41,7 +41,7 @@ class Request(BaseModel):
 async def attach_api_key(request: Request, call_next):
     """
     Pull 'X-API-Key' from the request headers and set it in the request-scoped ContextVar.
-    Ensures all ai2.py functions in this request see the right key via get_client().
+    Ensures all model.py functions in this request see the right key via get_client().
     """
     token = None
     try:

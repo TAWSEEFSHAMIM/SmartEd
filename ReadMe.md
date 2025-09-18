@@ -51,8 +51,8 @@ SmartEd is a comprehensive YouTube learning assistant that transforms video cont
 ### Backend Architecture
 ```
 Backend/
-├── main2.py          # FastAPI server with all endpoints
-├── ai2.py            # AI processing using Google Gemini API
+├── main.py          # FastAPI server with all endpoints
+├── model.py            # AI processing using Google Gemini API
 ├── transcript.py     # YouTube transcript extraction
 └── requirements.txt  # Python dependencies
 ```
@@ -60,8 +60,8 @@ Backend/
 ### Frontend Architecture
 ```
 Frontend/
-├── YouTubeVideoAssistant2.jsx  # Main React component
-├── content2.tsx               # Browser extension content script
+├── Smarted.jsx  # Main React component
+├── content.tsx               # Browser extension content script
 ├── style.css                  # Styling and themes
 └── plasmo.json               # Extension manifest
 ```
@@ -174,7 +174,7 @@ GEMINI_API_KEY=your_google_gemini_api_key_here  # Alternative name
 
 ### 2. API Configuration
 
-Edit `backend/ai2.py` to configure AI models:
+Edit `backend/model.py` to configure AI models:
 ```python
 # Model configurations
 SUMMARY_MODEL = "gemini-2.0-flash"
@@ -184,7 +184,7 @@ CHAT_MODEL = "gemini-2.0-flash"
 
 ### 3. CORS Configuration
 
-Update `backend/main2.py` for production:
+Update `backend/main.py` for production:
 ```python
 app.add_middleware(
     CORSMiddleware,
@@ -200,7 +200,7 @@ app.add_middleware(
 ### 1. Start the Backend Server
 ```bash
 cd backend
-python main2.py
+python main.py
 ```
 
 The API server will start at `http://localhost:8000`
@@ -383,7 +383,7 @@ POST /preload
 
 ## 🎨 Frontend Components
 
-### Main Component: YouTubeVideoAssistant2
+### Main Component: Smarted
 The primary React component that handles all user interactions and API communications.
 
 #### Key Features:
@@ -404,7 +404,7 @@ const [results, setResults] = useState({
 });
 ```
 
-### Content Script: content2.tsx
+### Content Script: content.tsx
 Handles browser extension integration with YouTube.
 
 #### Key Features:
