@@ -398,6 +398,7 @@ const SummaryComponent = ({ url, summary, setSummary, getUserApiKey }) => {
               quotePlugin(),
               markdownShortcutPlugin()
             ]}
+            contentEditableClassName="mdx-editor-content"
             theme={document.body.classList.contains('smarted-dark') ? 'dark' : 'light'}
           />
         </div>
