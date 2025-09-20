@@ -106,88 +106,6 @@ const QuizQuestion = ({ question, questionIndex }) => {
   );
 };
 
-// Simple markdown parser component
-const SimpleMarkdown = ({ content }) => {
-  if (!content) return null;
-
-  // Split content into paragraphs
-  const paragraphs = content.split('\n\n');
-
-  return (
-    <div className="simple-markdown">
-      {paragraphs.map((paragraph, index) => {
-        // Handle headers
-        if (paragraph.startsWith('# ')) {
-          return <h1 key={index}>{paragraph.substring(2)}</h1>;
-        } else if (paragraph.startsWith('## ')) {
-          return <h2 key={index}>{paragraph.substring(3)}</h2>;
-        } else if (paragraph.startsWith('### ')) {
-          return <h3 key={index}>{paragraph.substring(4)}</h3>;
-        }
-
-        // Handle lists
-        if (paragraph.includes('\n- ')) {
-          const listItems = paragraph.split('\n- ').filter(item => item);
-          return (
-            <ul key={index}>
-              {listItems.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
-          );
-        }
-
-        // Handle numbered lists
-        if (/\n\d+\.\s/.test(paragraph)) {
-          const listItems = paragraph.split(/\n\d+\.\s/).filter(item => item);
-          return (
-            <ol key={index}>
-              {listItems.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ol>
-          );
-        }
-
-        // Simple paragraph with basic formatting
-        const formattedText = formatTextInline(paragraph);
-        return <p key={index}>{formattedText}</p>;
-      })}
-    </div>
-  );
-};
-
-// Helper function to format inline text (bold, italic)
-const formatTextInline = (text) => {
-  // We'll use a simple approach for inline formatting
-  // This won't handle nested formatting but works for basic cases
-
-  // Convert parts wrapped in ** to bold
-  let elements = [];
-  let lastIndex = 0;
-  let boldRegex = /\*\*(.*?)\*\*/g;
-  let match;
-
-  while ((match = boldRegex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      elements.push(text.substring(lastIndex, match.index));
-    }
-    elements.push(<strong key={`bold-${match.index}`}>{match[1]}</strong>);
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    elements.push(text.substring(lastIndex));
-  }
-
-  // If no bold formatting was found, just return the text
-  if (elements.length === 0) {
-    return text;
-  }
-
-  return elements;
-};
-
 // Helper functions for localStorage
 const getStoredResults = (videoId) => {
   try {
@@ -233,6 +151,14 @@ const ChatComponent = ({ url, getUserApiKey }) => {
   const [question, setQuestion] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [isAsking, setIsAsking] = useState(false);
+  const chatContainerRef = useRef(null);
+
+  // Scroll to bottom whenever chat history updates
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
 
   const askQuestion = async () => {
     if (!question.trim() || !url) return;
@@ -348,13 +274,13 @@ const ChatComponent = ({ url, getUserApiKey }) => {
 const SummaryComponent = ({ url, summary, setSummary, getUserApiKey }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [copyStatus, setCopyStatus] = useState('idle'); // Add copy status state
+  const [copyStatus, setCopyStatus] = useState('idle');
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(summary);
       setCopyStatus('copied');
-      setTimeout(() => setCopyStatus('idle'), 2000); // Reset after 2 seconds
+      setTimeout(() => setCopyStatus('idle'), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
       setCopyStatus('error');
@@ -410,7 +336,7 @@ const SummaryComponent = ({ url, summary, setSummary, getUserApiKey }) => {
   return (
     <div className="summary-container">
       <div className="summary-header">
-        <h3>Video Summary</h3>
+        
         <button 
           onClick={handleCopy}
           className={`copy-button ${copyStatus}`}
@@ -617,7 +543,7 @@ const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
 
   return (
     <div className="quiz-container">
-      <h3>Knowledge Check</h3>
+      <h2>Knowledge Check</h2>
 
       {isLoading && (
         <div className="content-loading-indicator">
@@ -647,7 +573,9 @@ const Smarted = () => {
   // State management
   const [url, setUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const [activeTab, setActiveTab] = useState('summary');
+  const chatContainerRef = useRef(null);
   const [isCollapsed, setIsCollapsed] = useState(getCollapsedState());
   const [results, setResults] = useState({
     summary: '',
@@ -673,6 +601,22 @@ const Smarted = () => {
         resolve(key);
       });
     });
+  };
+
+  // Loading indicator component
+  const LoadingIndicator = () => (
+    <div className="loading-dots">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  );
+
+  // Auto-scroll effect
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {

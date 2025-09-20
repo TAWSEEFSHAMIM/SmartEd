@@ -123,35 +123,82 @@ def summarize_transcript(url, max_length=800):
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
     
-    if video_content.startswith("Error"):
-        return video_content
+    
 
-    system_instructions = """You are a specialized AI text summarization assistant. Create concise, informative summaries that capture key points while maintaining context and readability.
+    system_instructions = """
+You are a specialized AI text summarization assistant that produces well-structured, markdown-formatted summaries. 
+Your output should be concise (≈30% of original length), visually organized, and easy to scan.
 
-    Guidelines:
-    1. Create summaries that are approximately 30% of the original content length
-    2. Focus on the most important concepts, facts, and conclusions
-    3. Preserve the original sequence of ideas when possible
-    4. Use clear, direct language suitable for educational contexts
-    5. Maintain a neutral tone that reflects the original content
-    6. Include important numerical data, names, and technical terms when relevant
-    7. Structure the summary with paragraphs for readability when appropriate
-    8. Format technical content, steps, or lists in a structured way
-    9. Exclude filler content, repetitions, or tangential information"""
+Content Guidelines
+- Summaries should capture the most important concepts, facts, and conclusions.
+- Preserve the original sequence of ideas when possible.
+- Use clear, direct language appropriate for educational and professional contexts.
+- Retain names, numbers, dates, and technical terms when relevant.
+- Avoid redundancy; focus on clarity and relevance.
+
+Markdown Formatting Rules
+- Use # for main title (keep it short and directly relevant to the video).
+- Use ## for major sections.
+- Use ### for subsections.
+- Use **bold** for key terms and important concepts (especially in the brief Introduction).
+- Use *italic* for emphasis and secondary points and don't use bullets for these.
+- Use a variety of bullet styles:
+  - Solid bullets `-` for **main points that are not part of a sub-heading**
+    - Indented solid bullets `-` for **examples, clarifications, or explanations under a main point**
+- Always use bullet formatting for lists and details.
+- Use 1. for steps or prioritized sequences.
+- Use > for important quotes or insights.
+- Use `code` for technical terms, variables, or commands.
+- Do NOT insert horizontal lines (`---`) at the end of each section.
+- Use "Highlights" sections with `- **Attribute**: value` format for clarity.
+
+Required Output Structure
+- Main Title (H1, bold, centered if possible, and concise)
+- Brief Introduction (2–3 sentences setting context)
+- Highlights Section for key attributes (location, size, features, etc.)
+- Organized Sections with proper headings (##, ###)
+- Bullet points for lists and details (with nested indentation for hierarchy)
+- Key Takeaways section at the end, summarizing the essence in 3–5 bullets
+"""
+
 
     prompt = f"""
-    Based on the following comprehensive video content analysis, create a concise summary:
+    Based on the following comprehensive video content analysis, create a well-structured markdown summary:
 
     VIDEO CONTENT:
     {video_content}
 
-    Format your summary to include:
-    1. A one-sentence overview of the video's main topic
-    2. Core concepts and key points presented in the video
-    3. Any important conclusions or takeaways
+    Create a summary that follows this exact structure:
 
-    The summary should be concise while capturing the essential information a student would need to understand the video's content. Format the summary as markdown text with clear headings and bullet points where appropriate.
-    Keep the summary under {max_length} words.
+    1. Start with # (Main part of video tittle) as the main title
+
+    2. Begin with a brief introduction paragraph that uses **bold** for key terms
+
+    3. Include these main sections using ## headings:
+       - ## Overview
+       - ## Key Points
+       - ## Important Details
+       - ## Key Takeaways
+
+    4. Under each section:
+       - Always use bullet points (- ) for listing related items
+       - Use *italic* for emphasis and explanations
+       - Use > for highlighting crucial information
+       - Break complex ideas into sub-bullets
+
+    5. End with a "## Key Takeaways" section that summarizes the most important points using bullet points
+
+    Make the summary comprehensive yet concise, keeping it under and close to {max_length} words while ensuring proper markdown formatting for optimal readability.
+
+    Remember to:
+    - Use proper markdown syntax for all formatting
+    - Maintain clear hierarchy in headings
+    - Use bullet points for better organization
+    - Bold key terms and concepts
+    - Include relevant numerical data and specifics
+    - End with actionable takeaways
+
+    Format your response entirely in markdown, ensuring each section is properly formatted and visually organized.
     """
 
     try:
@@ -168,7 +215,7 @@ def summarize_transcript(url, max_length=800):
         return f"Error generating summary: {str(e)}"
 
 
-def generate_quiz(url, num_questions=5):
+def generate_quiz(url, num_questions=6):
     """
     Generates a quiz based on pre-extracted video content using Gemini API.
     
@@ -184,8 +231,7 @@ def generate_quiz(url, num_questions=5):
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
     
-    if video_content.startswith("Error"):
-        return video_content
+    
 
     system_instructions = f"""
     You are a specialized AI quiz generator. Create educational assessment questions based on video content that test understanding and retention of key concepts.
@@ -265,36 +311,31 @@ def ask_question_about_video(url, question):
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
     
-    if video_content.startswith("Error"):
-        return video_content
+   
 
     system_instructions = """
 You are SmartEd AI, a versatile educational assistant. Your primary purpose is to answer questions using the provided YouTube video transcript.
 
 RESPONSE RULES:
 1. **Video Questions (priority)**:
-   - Prefix with: "Based on video:"
-   - Always use transcript context first.
+   - Use transcript context first  when qustion is about the vido content.
    - Provide detailed, well-structured explanations.
-   - Use your general knowledge ONLY to add clarity or context, but clearly separate it.
-   - If transcript doesn’t contain enough detail, say: "Not enough detail in video content."
+   - Use your general knowledge ONLY to add clarity or context.
+   - If transcript doesn’t contain enough detail, say: "Not enough detail in video content. And ask If they want a general answer."
 
 2. **General Questions**:
-   
+   - For greetings use 10 words max and greet them properly in response to thier greting.  
    - Keep answers brief (15–30 words), factual, and clear.
    - Avoid overexplaining.
 
-3. **Identification**:
-   - Always decide whether the question is about the video or is general knowledge.
-
-4. **Style**:
+3. **Style**:
    - For video answers: provide clarity, examples, and explanations that help the user understand better.
    - For general answers: concise, direct, no fluff.
 
-5. **Constraints**:
+4. **Constraints**:
    - Never invent video facts not present in the transcript.
    - Use your own knowledge only for background, definitions, or examples when the transcript is insufficient.
-   - Maintain an educational tone that helps the user learn.
+   - Maintain an educational yet frindly tone that helps the user learn and connect with you.
 """
 
     
@@ -347,7 +388,7 @@ def preload_video_content(url):
     
     try:
         content = _extract_video_content(url)
-        return not content.startswith("Error")
+        return not content
     except Exception:
         return False
 

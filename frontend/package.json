@@ -1,6 +1,6 @@
 {
-  "name": "smart-ed",
-  "displayName": "Smart ed",
+  "name": "smarted",
+  "displayName": "SmartEd",
   "version": "0.0.1",
   "description": "AI powered summary and quiz generation tool for youtube video lectures",
   "author": "Tawseef Shamim",
