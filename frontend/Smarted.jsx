@@ -152,6 +152,7 @@ const ChatComponent = ({ url, getUserApiKey }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [isAsking, setIsAsking] = useState(false);
   const chatContainerRef = useRef(null);
+  const textareaRef = useRef(null);
 
   // Scroll to bottom whenever chat history updates
   useEffect(() => {
@@ -159,6 +160,22 @@ const ChatComponent = ({ url, getUserApiKey }) => {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
+
+  // Auto-resize textarea up to 4 lines
+  useEffect(() => {
+    if (textareaRef.current) {
+      const lineHeight = 24; // Adjust if your CSS line-height is different
+      const maxRows = 4;
+      textareaRef.current.rows = 1;
+      const lines = question.split('\n').length;
+      const scrollRows = Math.min(
+        maxRows,
+        Math.max(1, Math.ceil(textareaRef.current.scrollHeight / lineHeight))
+      );
+      textareaRef.current.rows = scrollRows;
+      textareaRef.current.style.overflowY = scrollRows === maxRows ? 'auto' : 'hidden';
+    }
+  }, [question]);
 
   const askQuestion = async () => {
     if (!question.trim() || !url) return;
@@ -170,7 +187,6 @@ const ChatComponent = ({ url, getUserApiKey }) => {
     try {
       const userApiKey = await getUserApiKey();
       if (!userApiKey) {
-        // Friendly UX when no key found
         setChatHistory(prev => [...prev, {
           question: currentQuestion,
           answer: 'No API key found. Open Settings to add your Gemini API key.',
@@ -181,16 +197,19 @@ const ChatComponent = ({ url, getUserApiKey }) => {
         return;
       }
 
+      const payload = {
+        url,
+        question: currentQuestion,
+        history: chatHistory.map(chat => ({
+          question: chat.question,
+          answer: chat.answer
+        }))
+      };
+
       const response = await fetch('http://127.0.0.1:8000/chat', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-API-Key': userApiKey
-        },
-        body: JSON.stringify({ 
-          url: url,
-          question: currentQuestion 
-        })
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': userApiKey },
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -207,7 +226,6 @@ const ChatComponent = ({ url, getUserApiKey }) => {
       }]);
 
     } catch (error) {
-      console.error('Chat Error:', error);
       setChatHistory(prev => [...prev, {
         question: currentQuestion,
         answer: `Error: ${error.message}`,
@@ -250,13 +268,19 @@ const ChatComponent = ({ url, getUserApiKey }) => {
 
       <div className="chat-input-container">
         <textarea
+          ref={textareaRef}
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Ask a question about this video..."
           disabled={isAsking || !url}
           className="chat-input"
-          rows={3}
+          rows={1}
+          style={{
+            resize: 'none',
+            maxHeight: `${4 * 24}px`, // 4 lines max, adjust lineHeight if needed
+            overflowY: 'auto'
+          }}
         />
         <button
           onClick={askQuestion}

@@ -1,5 +1,5 @@
 # Updated Fast API Main with Merged Video Assistant
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 # from transcript import get_transcript
 from model import summarize_transcript, generate_quiz, ask_question_about_video, preload_video_content, _extract_video_content
@@ -33,9 +33,7 @@ class QuizRequest(BaseModel):
 class ChatRequest(BaseModel):
     url: str
     question: str
-
-class Request(BaseModel):
-    url: str
+    history: list = []
 
 @app.middleware("http")
 async def attach_api_key(request: Request, call_next):
@@ -112,22 +110,18 @@ def quiz_endpoint(request: QuizRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat")
-def chat_endpoint(request: ChatRequest):
-    """Ask a question about a specific video"""
+async def chat_endpoint(request: Request):
     try:
-        answer = ask_question_about_video(request.url, request.question)
-        
-        if answer.startswith("Error"):
-            raise HTTPException(status_code=400, detail=answer)
-            
-        return {
-            "question": request.question,
-            "answer": answer
-        }
-    except HTTPException:
-        raise
+        data = await request.json()
+        url = data.get("url")
+        question = data.get("question")
+        history = data.get("history", [])
+        if not url or not question:
+            raise HTTPException(status_code=400, detail="Missing url or question")
+        answer = ask_question_about_video(url, question, history)
+        return {"answer": answer}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/complete-analysis")
 def complete_analysis_endpoint(request: Request):

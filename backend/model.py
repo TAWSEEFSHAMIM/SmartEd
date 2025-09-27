@@ -295,67 +295,56 @@ def generate_quiz(url, num_questions=6):
         return f"Error generating quiz: {str(e)}"
 
 
-def ask_question_about_video(url, question):
+def ask_question_about_video(url, question, history=None):
     """
-    Ask a specific question about a video using pre-extracted content.
-    
+    Ask a specific question about a video using pre-extracted content and chat history.
+
     Args:
         url (str): The YouTube video URL
         question (str): The question to ask about the video
-        
+        history (list): List of previous Q&A dicts: [{ "question": ..., "answer": ... }, ...]
+
     Returns:
-        str: Answer to the question based on video content
+        str: Answer to the question based on video content and chat history
     """
     client = get_client()
 
     # Get comprehensive video content (cached if already extracted)
     video_content = _extract_video_content(url)
-    
-   
 
     system_instructions = """
-You are SmartEd AI, a versatile educational assistant. Your primary purpose is to answer questions using the provided YouTube video transcript.
+Your name is SmartEd AI, a versatile educational assistant.
+You must answer every question the user asks.
 
-RESPONSE RULES:
-1. **Video Questions (priority)**:
-   - Use transcript context first  when qustion is about the vido content.
-   - Provide detailed, well-structured explanations.
-   - Use your general knowledge ONLY to add clarity or context.
-   - If transcript doesn’t contain enough detail, say: "Not enough detail in video content. And ask If they want a general answer."
-
-2. **General Questions**:
-   - For greetings use 10 words max and greet them properly in response to thier greting.  
-   - Keep answers brief (15–30 words), factual, and clear.
-   - Avoid overexplaining.
-
-3. **Style**:
-   - For video answers: provide clarity, examples, and explanations that help the user understand better.
-   - For general answers: concise, direct, no fluff.
-
-4. **Constraints**:
-   - Never invent video facts not present in the transcript.
-   - Use your own knowledge only for background, definitions, or examples when the transcript is insufficient.
-   - Maintain an educational yet frindly tone that helps the user learn and connect with you.
+- If the question is related to the provided video content, always base your answer strictly on the video content analysis given.
+- If the question is not related to the video, answer using your general knowledge and reasoning.
+- If uncertain whether the question is related to the video, clarify with the user before answering.
+- Use the previous chat history to maintain context and continuity in your answers.
 """
 
-    
+    # Format chat history for the prompt
+    history_text = ""
+    if history:
+        history_text = "\n".join(
+            [f"Q{idx+1}: {h['question']}\nA{idx+1}: {h['answer']}" for idx, h in enumerate(history)]
+        )
+
     prompt = f"""
 You are answering as SmartEd AI.
 
 VIDEO CONTENT ANALYSIS (Transcript Extracted):
 {video_content}
 
+CHAT HISTORY:
+{history_text}
+
 USER QUESTION:
 {question}
 
-TASK:
-- Decide if the question is about the video or general knowledge.
-- If about the video → Answer comprehensively using transcript content. Add context/explanation only if necessary for understanding.
-- If general → Give a short, precise answer (10–30 words) or less .
-
-Final Answer:
+INSTRUCTION:
+- If the user’s question is about the video, answer using only the VIDEO CONTENT ANALYSIS and the chat history above.
+- If it is not related to the video, answer with your general knowledge.
 """
-
 
     try:
         response = client.models.generate_content(
@@ -367,9 +356,9 @@ Final Answer:
                 parts=[types.Part(text=prompt)]
             )
         )
-        
+
         return response.text
-        
+
     except Exception as e:
         return f"Error generating answer: {str(e)}"
 

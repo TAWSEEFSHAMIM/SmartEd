@@ -24,6 +24,8 @@
   width: 100%;
 }
 
+
+
 /* Header - Modified to include process button and arrow in same line */
 /* Header Section */
 .extension-header {
@@ -301,6 +303,9 @@
   font-size: 14px;
   margin: 7px 0px 7px 0px;
   text-align: center;
+}
+.smarted-dark .quiz-subtitle{
+  color:rgb(182, 179, 179)
 }
 
 .quiz-questions {
@@ -674,31 +679,40 @@
 
 /* Chat Input Container - WhatsApp Style */
 .chat-input-container {
+  align-items: center;
   
-  padding: 4px;
   background: #f8f9fa;
   flex-shrink: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 8px;
+  min-height:16px;
+  max-height: 120px; /* 4 lines x 30px (adjust if your line-height is different) */
+  padding: 4px 0px 4px 4px;
 }
 
 .chat-input {
-  flex: 1;
-  padding: 5px 4px;
-  font-family: monospace;
-  font-size: 11px;
-  transition: all 0.2s ease;
-  background: #ffffff;
-  height: 14px;
-  resize: none;
-  outline: none;
   
- 
+ align-self: center;
+  
+  flex: 1;
+  /* padding: 2px 2px; */
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1;
+  min-height:12px;
+  max-height: 96px; /* 4 lines x 24px */
+  resize: none;
+  overflow-y: auto;
+  padding:5px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  transition: border 0.2s;
+  box-sizing: border-box;
 }
 
 .chat-input:focus {
-  border-color: #3f3f3f;
+  border-color: #616060;
   
 }
 
@@ -715,11 +729,11 @@
 
 /* Send Button - WhatsApp Style */
 .chat-submit-button {
-  background: rgb(247, 247, 247);
+  background: transparent;
   color: red;
   border: none;
   padding: 4px;
-  border-radius: 50%;
+  
   width: 30px;
   height: 30px;
   display: flex;
@@ -734,7 +748,7 @@
 
 .chat-submit-button:hover:not(:disabled) {
 
-border: red solid 2px;
+  color: red solid 2px;
   transform: scale(1.05);
 }
 
@@ -743,7 +757,7 @@ border: red solid 2px;
 }
 
 .chat-submit-button:disabled {
-  background: #ffffff;
+  color: gray;
   cursor: not-allowed;
   transform: none;
 }
@@ -1046,18 +1060,10 @@ border: red solid 2px;
   background: #232526 !important;
   color: #888 !important;
 }
-.smarted-dark .chat-submit-button {
-  background: #232526 !important;
-  color: #ff5252 !important;
-  border: 1px solid #444 !important;
-}
-.smarted-dark .chat-submit-button:hover:not(:disabled) {
-  border: 1.5px solid #ff5252 !important;
-  background: #181a1b !important;
-  color: #fff !important;
-}
+
+
 .smarted-dark .chat-submit-button:disabled {
-  background: #232526 !important;
+  
   color: #888 !important;
 }
 .smarted-dark .spinner {
