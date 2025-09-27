@@ -215,7 +215,7 @@ Required Output Structure
         return f"Error generating summary: {str(e)}"
 
 
-def generate_quiz(url, num_questions=6):
+def generate_quiz(url, num_questions=6, previous_questions=None):
     """
     Generates a quiz based on pre-extracted video content using Gemini API.
     
@@ -267,9 +267,12 @@ def generate_quiz(url, num_questions=6):
     }}
     """
     
+    previous_questions = previous_questions or []
+    # Pass previous_questions to Gemini in the prompt:
     prompt = f"""
-    Based on the following video content analysis, generate {num_questions} multiple-choice questions:
-      
+    Based on the following video content analysis, generate {num_questions} multiple-choice questions that are NOT similar to these previous questions:
+    PREVIOUS QUESTIONS:
+    {previous_questions}
     VIDEO CONTENT:
     {video_content}
 

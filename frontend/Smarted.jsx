@@ -444,8 +444,12 @@ const SummaryComponent = ({ url, summary, setSummary, getUserApiKey }) => {
 const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasMore, setHasMore] = useState(true); // Track if more questions can be generated
 
-  const loadQuiz = async () => {
+  // Helper to get previous question texts
+  const getPreviousQuestions = () => (quiz || []).map(q => q.question);
+
+  const loadQuiz = async (append = false) => {
     if (!url) return;
 
     setIsLoading(true);
@@ -459,6 +463,7 @@ const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
         return;
       }
 
+      // Pass previous questions to backend to avoid repeats
       const response = await fetch('http://127.0.0.1:8000/quiz', {
         method: 'POST',
         headers: { 
@@ -467,7 +472,8 @@ const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
         },
         body: JSON.stringify({ 
           url: url,
-          num_questions: 5 
+          num_questions: 5,
+          previous_questions: append ? getPreviousQuestions() : []
         })
       });
 
@@ -478,7 +484,11 @@ const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
 
       const data = await response.json();
       const formattedQuiz = parseQuizData(data.quiz);
-      setQuiz(formattedQuiz);
+
+      // If no new questions, disable "more" button
+      if (formattedQuiz.length === 0) setHasMore(false);
+
+      setQuiz(append ? [...quiz, ...formattedQuiz] : formattedQuiz);
 
     } catch (error) {
       console.error('Quiz Error:', error);
@@ -540,7 +550,7 @@ const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
       return (
         <div className="no-quiz-message">
           <p>No quiz data available.</p>
-          <button onClick={loadQuiz} className="load-button">
+          <button onClick={() => loadQuiz(false)} className="load-button">
             Generate Quiz
           </button>
         </div>
@@ -562,6 +572,19 @@ const QuizComponent = ({ url, quiz, setQuiz, getUserApiKey }) => {
             />
           ))}
         </div>
+
+        {/* Add "Generate More Questions" button at the end */}
+        {hasMore && (
+          <div style={{ textAlign: 'center', marginTop: '1em' }}>
+            <button
+              onClick={() => loadQuiz(true)}
+              disabled={isLoading}
+              className="load-button"
+            >
+              {isLoading ? 'Loading...' : 'Generate More Questions'}
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -816,12 +839,6 @@ const Smarted = () => {
 
         // Set success message
         setError('');
-
-        // Expand if collapsed after successful processing
-        if (isCollapsed) {
-          setIsCollapsed(false);
-          setCollapsedState(false);
-        }
       }
 
     } catch (err) {
@@ -879,15 +896,7 @@ const Smarted = () => {
     return (
       <div className="yt-assistant-container smarted-snackbar">
         {renderHeader()}
-
-        {error && <div className="error-message">{error}</div>}
-
-        {isProcessing && (
-          <div className="processing-indicator">
-            <div className="spinner"></div>
-            <p>Processing video... This may take a minute.</p>
-          </div>
-        )}
+        {/* Removed error and loading indicator from snackbar */}
       </div>
     );
   };
@@ -918,26 +927,32 @@ const Smarted = () => {
         <>
           {renderHeader()}
 
-          {isProcessing ? (
-            <div className="processing-indicator">
-              <div className="spinner"></div>
-              <p>Processing video... This may take a minute.</p>
-            </div>
-          ) : error ? (
-            <div className="error-container">
-              <div className="error-message">
-                <div className="error-icon">⚠️</div>
-                <div className="error-content">
-                  <h3>Error Occurred</h3>
-                  <p>{error}</p>
-                  <button 
-                    className="retry-button"
-                    onClick={processVideo}
-                  >
-                    Try Again
-                  </button>
+          {/* Dedicated container for loading/error */}
+          {(isProcessing || error) ? (
+            <div className="status-container">
+              {isProcessing && (
+                <div className="processing-indicator">
+                  <div className="spinner"></div>
+                  <p>Processing video... This may take a minute.</p>
                 </div>
-              </div>
+              )}
+              {error && (
+                <div className="error-container">
+                  <div className="error-message">
+                    <div className="error-icon">⚠️</div>
+                    <div className="error-content">
+                      <h3>Error Occurred</h3>
+                      <p>{error}</p>
+                      <button 
+                        className="retry-button"
+                        onClick={processVideo}
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="results-container">
@@ -985,7 +1000,6 @@ const Smarted = () => {
                   />
                 )}
               </div>
-
             </div>
           )}
 
